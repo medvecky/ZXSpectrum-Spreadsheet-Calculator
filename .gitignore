@@ -1,0 +1,7 @@
+.tmp/
+.vscode/
+bin/
+build/
+*.lis
+*.sym
+workspace.code-workspace
