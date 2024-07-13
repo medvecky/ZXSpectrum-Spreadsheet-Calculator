@@ -3,8 +3,12 @@
 #include "view_helper.h"
 #include "system_helper.h"
 
+extern size_t xCellCoordinate;
+extern size_t yCellCoordinate;
+
 void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
+    printCursorPosition();
     gotoxy( xCursorPosition, yCursorPosition );
     inverseAttributes();
     printf("%*s", fieldWidth, "" );
@@ -21,8 +25,9 @@ void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth )
 {
     char column = 'A';
     inverseAttributes();
+    gotoxy( 0, 3 );
     printf( "%*c", rowHeadersWidth, ' ' );
-    gotoxy( rowHeadersWidth, 0 );
+    gotoxy( rowHeadersWidth, 3 );
     for ( size_t counter = 1; counter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; counter++ ) 
     {
         printf( "%-*c", fieldWidth, column + counter - 1 );
@@ -33,9 +38,9 @@ void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth )
 void showRowsHeaders( size_t fieldWidth )
 {
     inverseAttributes();
-    for ( size_t counter = 1; counter <= SCREEN_HEIGHT; counter++ ) 
+    for ( size_t counter = 1; counter <= SCREEN_HEIGHT - 3; counter++ ) 
     {
-        gotoxy( 0, counter );
+        gotoxy( 0, counter + 3 );
         printf( "%-*d", fieldWidth, counter );
     }
     restoreAttributes();
@@ -44,6 +49,7 @@ void showRowsHeaders( size_t fieldWidth )
 void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {
     char key = 0;
+    showStatusBar();
     showColumnsHeaders( fieldWidth, rowHeadersWidth );
     showRowsHeaders( rowHeadersWidth );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
@@ -59,13 +65,15 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
                 if ( yCursorPosition < SCREEN_HEIGHT  ) 
                 {
                     yCursorPosition++;
+                    yCellCoordinate++;
                 }
                 break;
             case 0x0b:
             // case 'w':
-                if ( yCursorPosition > 1 ) 
+                if ( yCursorPosition > 4 ) 
                 {
                     yCursorPosition--;
+                    yCellCoordinate--;
                 }
                 break;
             case 0x09:
@@ -73,6 +81,7 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
                 if ( xCursorPosition < SCREEN_WIDTH - fieldWidth - rowHeadersWidth )  
                 {
                     xCursorPosition += fieldWidth;
+                    xCellCoordinate++;
                 }
                 break;
             case 0x08:
@@ -80,10 +89,28 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
                 if ( xCursorPosition > rowHeadersWidth ) 
                 {
                     xCursorPosition -= fieldWidth;
+                    xCellCoordinate--;
                 }
                 break;
         }
 
         showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
     }
+}
+
+void showStatusBar( void )
+{
+    inverseAttributes();
+    printf( "%*s", SCREEN_WIDTH, " " );
+    gotoxy( 0, 1 );
+    printf( "%*s", SCREEN_WIDTH, " " );
+    restoreAttributes();
+}
+
+void printCursorPosition( void )
+{
+    inverseAttributes();
+    gotoxy( 0, 0 );
+    printf( "%c%d  ", 'A' + xCellCoordinate, yCellCoordinate + 1 );
+    restoreAttributes();
 }
