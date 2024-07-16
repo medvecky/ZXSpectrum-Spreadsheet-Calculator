@@ -35,13 +35,13 @@ void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth )
     restoreAttributes();
 }
 
-void showRowsHeaders( size_t fieldWidth )
+void showRowsHeaders( size_t fieldWidth, size_t start ) 
 {
     inverseAttributes();
     for ( size_t counter = 1; counter <= SCREEN_HEIGHT - 3; counter++ ) 
     {
         gotoxy( 0, counter + 3 );
-        printf( "%-*d", fieldWidth, counter );
+        printf( "%-*d", fieldWidth, counter + start - 1 );
     }
     restoreAttributes();
 }
@@ -51,7 +51,7 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
     char key = 0;
     showStatusBar();
     showColumnsHeaders( fieldWidth, rowHeadersWidth );
-    showRowsHeaders( rowHeadersWidth );
+    showRowsHeaders( rowHeadersWidth, 1 );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
 
     while ( ( key = cgetc() ) != 'q' ) 
@@ -61,23 +61,43 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
         switch ( key ) 
         {
             case 0x0a:
-            // case 's':
+            case 's':
                 if ( yCursorPosition < SCREEN_HEIGHT  ) 
                 {
                     yCursorPosition++;
                     yCellCoordinate++;
                 }
+                else
+                {
+                    yCursorPosition = SCREEN_HEIGHT;
+                    
+                    if ( yCellCoordinate < NUM_OF_ROWS - 1 )
+                    {
+                        yCellCoordinate++;
+                        showRowsHeaders( rowHeadersWidth, yCellCoordinate - 18 );
+                    }
+                }
                 break;
             case 0x0b:
-            // case 'w':
+            case 'w':
                 if ( yCursorPosition > 4 ) 
                 {
                     yCursorPosition--;
                     yCellCoordinate--;
                 }
+                else
+                {
+                    yCursorPosition = 4;
+                    
+                    if ( yCellCoordinate >= 1 )
+                    {
+                        yCellCoordinate--;
+                        showRowsHeaders( rowHeadersWidth, yCellCoordinate + 1 );
+                    }
+                }
                 break;
             case 0x09:
-            // case 'd':
+            case 'd':
                 if ( xCursorPosition < SCREEN_WIDTH - fieldWidth - rowHeadersWidth )  
                 {
                     xCursorPosition += fieldWidth;
@@ -85,7 +105,7 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
                 }
                 break;
             case 0x08:
-            // case 'a':
+            case 'a':
                 if ( xCursorPosition > rowHeadersWidth ) 
                 {
                     xCursorPosition -= fieldWidth;

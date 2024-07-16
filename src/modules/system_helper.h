@@ -8,5 +8,6 @@ void restoreAttributes( void );
 
 #define SCREEN_HEIGHT  23
 #define SCREEN_WIDTH   41
+#define NUM_OF_ROWS    254
 
 #endif // _SYSTEM_HELPER_H_
