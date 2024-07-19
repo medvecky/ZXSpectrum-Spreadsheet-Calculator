@@ -6,8 +6,9 @@ void restoreScreen( void );
 void inverseAttributes( void );
 void restoreAttributes( void );
 
-#define SCREEN_HEIGHT  23
-#define SCREEN_WIDTH   41
-#define NUM_OF_ROWS    254
+#define SCREEN_HEIGHT       23
+#define SCREEN_WIDTH        41
+#define NUMBER_OF_ROWS      254
+#define NUMBER_OF_COLUMNS   64
 
 #endif // _SYSTEM_HELPER_H_

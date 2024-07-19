@@ -87,10 +87,17 @@ static void printCursorPosition( void )
     char secondColumnSymbol = ' ';
     inverseAttributes();
     gotoxy( 0, 0 );
-    // printf( "%c%d  ", 'A' + xCellCoordinate, yCellCoordinate + 1 );
-    // printf( "%d %d  ", xCellCoordinate + 1, yCellCoordinate + 1 );
     numberToTwoLetterCode( xCellCoordinate + 1, &columnSymbol, &secondColumnSymbol );
-    printf( "%d 1[%c] 2[%c]", xCellCoordinate + 1, columnSymbol, secondColumnSymbol );
+
+    if ( xCellCoordinate + 1 <= 26 ) 
+    {
+        printf( "%c%d    ", secondColumnSymbol, yCellCoordinate + 1 );
+    } 
+    else 
+    {
+        printf( "%c%c%d   ", columnSymbol, secondColumnSymbol, yCellCoordinate + 1 );
+    }
+    
     restoreAttributes();
 }
 
@@ -128,7 +135,7 @@ static void handleDownKey( size_t * yCursorPosition, size_t rowHeadersWidth )
     {
         *yCursorPosition = SCREEN_HEIGHT;
         
-        if ( yCellCoordinate < NUM_OF_ROWS - 1 )
+        if ( yCellCoordinate < NUMBER_OF_ROWS - 1 )
         {
             yCellCoordinate++;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate - 18 );
@@ -166,7 +173,7 @@ static void handleRightKey( size_t * xCursorPosition, size_t fieldWidth, size_t 
     {
         *xCursorPosition = SCREEN_WIDTH - fieldWidth - rowHeadersWidth;
         
-        if ( xCellCoordinate < NUM_OF_ROWS - 1 )
+        if ( xCellCoordinate < NUMBER_OF_COLUMNS - 1 )
         {
             xCellCoordinate++;
             showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate - 4 );
@@ -180,6 +187,16 @@ static void handleLeftKey( size_t * xCursorPosition, size_t fieldWidth, size_t r
     {
         ( *xCursorPosition ) -= fieldWidth;
         xCellCoordinate--;
+    }
+    else
+    {
+        *xCursorPosition = rowHeadersWidth;
+        
+        if ( xCellCoordinate > 0 )
+        {
+            xCellCoordinate--;
+            showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate );
+        }
     }
 }
 
