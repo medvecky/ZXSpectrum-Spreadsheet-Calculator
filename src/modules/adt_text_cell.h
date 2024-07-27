@@ -9,5 +9,7 @@ typedef struct
     char * text;
 } TextCell;
 
+void TextCell_print( Cell * cell );
+TextCell * TextCell_create( char * text );
 
 #endif // ADT_TEXT_CELL_H

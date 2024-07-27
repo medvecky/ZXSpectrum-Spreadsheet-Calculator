@@ -9,7 +9,8 @@ SOURCES = ttcalc.c\
 			modules/adt_blank_cell.c\
 			modules/adt_number_cell.c\
 			modules/adt_text_cell.c\
-			modules/adt_const_cell.c
+			modules/adt_const_cell.c\
+			modules/adt_sheet.c
 
 # Maybe you'll need to edit this
 
