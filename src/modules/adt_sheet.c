@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "adt_sheet.h"
-#include "adt_blank_cell.h"
 
 Sheet * Sheet_create() 
 {
@@ -11,7 +11,7 @@ Sheet * Sheet_create()
     {
         for ( size_t c = 0; c < NUMBER_OF_COLUMNS; c++ ) 
         {
-            sheet->cells[ r ][ c ] = ( Cell * )BlankCell_create();
+            sheet->cells[ r ][ c ] = ( Cell * )Cell_createBlank();
         }
     }
     
@@ -29,4 +29,16 @@ void Sheet_setCell( Sheet * sheet, int row, int col, Cell * cell )
         
         sheet->cells[ row ][ col ] = cell;
     }
+}
+
+Cell * Sheet_getCell( Sheet * sheet, int row, int col ) 
+{
+    Cell * cell = NULL;
+
+    if ( row >= 0 && row < NUMBER_OF_ROWS && col >= 0 && col < NUMBER_OF_COLUMNS ) 
+    {
+        cell = sheet->cells[ row ][ col ];
+    }
+
+    return cell;
 }

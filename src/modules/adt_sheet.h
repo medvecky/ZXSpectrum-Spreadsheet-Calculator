@@ -11,5 +11,6 @@ typedef struct
 
 Sheet * Sheet_create();
 void Sheet_setCell( Sheet * sheet, int row, int col, Cell * cell );
+Cell * Sheet_getCell( Sheet * sheet, int row, int col );
 
 #endif // ADT_SHEET_H
