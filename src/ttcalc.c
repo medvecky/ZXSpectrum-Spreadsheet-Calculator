@@ -30,6 +30,8 @@ int main( void )
     cellOut = Sheet_getCell( sheet, 0, 1 );
     cellOut->print( cellOut );
     puts( "" );
+    printf( "Size of Cell %d\n", sizeof( Cell ) );
+    printf( "Size of Sheet %d\n", sizeof( Sheet ) );
     puts( "Press any key to exit..." );
 
     cgetc();

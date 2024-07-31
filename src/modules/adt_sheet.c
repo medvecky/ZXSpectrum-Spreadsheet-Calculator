@@ -11,7 +11,7 @@ Sheet * Sheet_create()
     {
         for ( size_t c = 0; c < NUMBER_OF_COLUMNS; c++ ) 
         {
-            sheet->cells[ r ][ c ] = ( Cell * )Cell_createBlank();
+            sheet->cells[ r ][ c ] = NULL;
         }
     }
     
