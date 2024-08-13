@@ -4,7 +4,9 @@ EXEC_OUTPUT=build/ttcalc
 # List all your source files here
 SOURCES = ttcalc.c\
 			modules/system_helper.c\
-			modules/view_helper.c
+			modules/view_helper.c\
+			modules/adt_cell.c\
+			modules/adt_sheet.c
 
 # Maybe you'll need to edit this
 
@@ -19,7 +21,7 @@ CRT=3
 MKDIR = mkdir -p
 CC=docker run  --platform linux/amd64 -v .:/src/ -it z88dk/z88dk zcc
 AS=docker run  --platform linux/amd64 -v .:/src/ -it z88dk/z88dk zcc
-# TARGET=+zxn -subtype=nex -lndos
+# TARGET=+zxn -subtype=nex -lndos -lm -DAMALLOC
 TARGET=+zx -lndos -lm -DAMALLOC
 # TARGET=+cpm -lndos -lzxcpm -lm -DAMALLOC -D__CPM__
 VERBOSITY=-vn
@@ -31,12 +33,21 @@ OBJS=$(patsubst %, src/%, $(OBJECTS))
 
 C_OPT_FLAGS=-SO3 --max-allocs-per-node200000 --opt-code-size
 
-CFLAGS=$(TARGET) $(VERBOSITY) -c $(C_OPT_FLAGS) -compiler sdcc -clib=ansi -pragma-define:ansicolumns=42 -pragma-redirect:CRT_FONT=_font_8x8_zx_clairsys 
-#-pragma-include:$(PRAGMA_FILE)
-LDFLAGS=$(TARGET) $(VERBOSITY) --list -m -s -clib=ansi -pragma-define:ansicolumns=42 -pragma-redirect:CRT_FONT=_font_8x8_clairsys 
-#-pragma-include:$(PRAGMA_FILE)
+CFLAGS=$(TARGET) $(VERBOSITY) -c $(C_OPT_FLAGS) -compiler sdcc -clib=ansi\
+-pragma-define:ansicolumns=42 -pragma-redirect:CRT_FONT=_font_8x8_zx_clairsys
+# -pragma-define:CRT_MODEL=2
+# -pragma-define:CRT_ORG_CODE=0x8000
+# -pragma-define:CRT_ORG_BSS=0xC000
+# -pragma-define:CLIB_MALLOC_HEAP_SIZE=35840 
+# -pragma-include:$(PRAGMA_FILE)
+LDFLAGS=$(TARGET) $(VERBOSITY) --list -m -s -clib=ansi\
+-pragma-define:ansicolumns=42 -pragma-redirect:CRT_FONT=_font_8x8_clairsys
+# -pragma-define:CRT_MODEL=2
+# -pragma-define:CRT_ORG_CODE=0x8000
+# -pragma-define:CRT_ORG_BSS=0xC000
+# -pragma-define:CLIB_MALLOC_HEAP_SIZE=23150 
+# -pragma-include:$(PRAGMA_FILE)
 ASFLAGS=$(TARGET) $(VERBOSITY) -c --list -m -s 
-
 # EXEC=$(EXEC_OUTPUT).nex
 EXEC=$(EXEC_OUTPUT).tap
 # EXEC=$(EXEC_OUTPUT).com
