@@ -2,6 +2,7 @@
 
 #include "view_helper.h"
 #include "system_helper.h"
+#include "adt_sheet.h"
 
 extern size_t xCellCoordinate;
 extern size_t yCellCoordinate;
@@ -9,6 +10,7 @@ extern size_t yCellCoordinate;
 static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
     printCursorPosition();
+    printValueToStatusBar();
     gotoxy( xCursorPosition, yCursorPosition );
     inverseAttributes();
     printf("%*s", fieldWidth, "" );
@@ -100,6 +102,34 @@ static void printCursorPosition( void )
     
     restoreAttributes();
 }
+
+static void printValueToStatusBar()
+{
+    inverseAttributes();
+
+    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+    {
+        printf( "                    " );
+    } 
+    else 
+    {
+        Cell * cell = Sheet_getCell( sheet, yCellCoordinate, xCellCoordinate );
+        if ( cell->type == NUMBER_CELL ) 
+        {
+            printf( "%s", "(V)" );
+        } 
+        else if ( cell->type == TEXT_CELL )   
+        {
+            printf( "%s", "(L)" );
+        }
+
+        printf( "%s", " " );
+        cell->print( cell );
+        printf( "%s", "                  " );
+    }
+
+    restoreAttributes();
+}   
 
 static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {

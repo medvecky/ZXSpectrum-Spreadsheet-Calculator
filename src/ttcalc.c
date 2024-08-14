@@ -8,6 +8,7 @@
 
 size_t xCellCoordinate = 0;
 size_t yCellCoordinate = 0;
+Sheet * sheet = NULL;
 
 int main( void )
 {
@@ -17,13 +18,17 @@ int main( void )
     size_t yCursorPosition = 4;
 
     setUpScreen();
-    
+    puts( "Loading..." );
+
+    sheet = Sheet_create();
+    Cell * cell = Cell_createNumber( 3.14 );
+    Sheet_setCell( sheet, 0, 0, cell );
+    cell = Cell_createText( "Hello, world" );
+    Sheet_setCell( sheet, 0, 1, cell );
+
+    setUpScreen();
     showGrid( xCursorPosition, yCursorPosition, fieldWidth, rowHeadersWidth );
-    // Sheet * sheet = Sheet_create();
-    // Cell * cell = Cell_createNumber( 3.14 );
-    // Sheet_setCell( sheet, 0, 0, cell );
-    // cell = Cell_createText( "Hello, world" );
-    // Sheet_setCell( sheet, 0, 1, cell );
+
     // Cell * cellOut = Sheet_getCell( sheet, 0, 0 );
     // cellOut->print( cellOut );
     // puts( "" );

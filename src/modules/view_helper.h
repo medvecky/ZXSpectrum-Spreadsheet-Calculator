@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "adt_sheet.h"
+
 static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth );
 static void hideCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth );
 static void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth, size_t start );
@@ -16,5 +18,6 @@ static void handleUpKey( size_t * yCursorPosition, size_t rowHeadersWidth );
 static void handleRightKey( size_t * xCursorPosition, size_t fieldWidth, size_t rowHeadersWidth );
 static void handleLeftKey( size_t * xCursorPosition, size_t fieldWidth, size_t rowHeadersWidth );
 static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 );
+static void printValueToStatusBar( void );
 
 #endif
