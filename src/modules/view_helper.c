@@ -11,16 +11,34 @@ static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size
 {
     printCursorPosition();
     printValueToStatusBar();
+    
     gotoxy( xCursorPosition, yCursorPosition );
     inverseAttributes();
-    printf("%*s", fieldWidth, "" );
+
+    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+    {
+        printf( "%*s", fieldWidth, "" );
+    } 
+    else 
+    {
+        printCellAtXYValue( xCellCoordinate, yCellCoordinate, fieldWidth );
+    }
+    
     restoreAttributes();
 }
 
 static void hideCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
     gotoxy( xCursorPosition, yCursorPosition );
-    printf("%*s", fieldWidth, "" );
+    
+    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+    {
+        printf( "%*s", fieldWidth, "" );
+    } 
+    else 
+    {
+        printCellAtXYValue( xCellCoordinate, yCellCoordinate, fieldWidth );
+    }
 }
 
 static void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth, size_t start )
@@ -64,6 +82,7 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
     showStatusBar();
     showColumnsHeaders( fieldWidth, rowHeadersWidth, 0 );
     showRowsHeaders( rowHeadersWidth, 1 );
+    displaySheetDataToGrid( fieldWidth, rowHeadersWidth );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
 
     while ( ( key = cgetc() ) != 'q' ) 
@@ -124,7 +143,7 @@ static void printValueToStatusBar()
         }
 
         printf( "%s", " " );
-        cell->print( cell );
+        cell->print( cell, 0 );
         printf( "%s", "                  " );
     }
 
@@ -241,12 +260,30 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     else 
     {
         *symbol1 = ( char )( ( number / 26 ) + 'A' - 1 ); // Calculate the first symbol.
-        *symbol2 = ( char )( ( number % 26) + 'A' - 1 ); // Calculate the second symbol.
+        *symbol2 = ( char )( ( number % 26 ) + 'A' - 1 ); // Calculate the second symbol.
 
         if ( *symbol2 == '@' ) 
         {
             *symbol2 = 'Z';
-            (*symbol1)--;
+            ( *symbol1 )--;
         }
     }
+}
+
+static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
+{
+    for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
+    {
+        for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
+        {
+             gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
+             printf( "%d%d", rowCounter, colCounter );
+        }
+    }
+} 
+
+static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth )
+{
+    Cell * cell = Sheet_getCell( sheet, y, x );
+    cell->print( cell , fieldWidth );
 }

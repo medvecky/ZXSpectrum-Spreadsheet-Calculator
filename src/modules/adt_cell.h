@@ -12,7 +12,7 @@ typedef enum
 typedef struct Cell 
 {
     CellType type;
-    void ( * print ) ( struct Cell * );
+    void ( * print ) ( struct Cell *, size_t  );
 
     union 
     {
@@ -24,8 +24,8 @@ typedef struct Cell
 Cell * Cell_createBlank();
 Cell * Cell_createNumber( double number );
 Cell * Cell_createText( char * text );
-void Cell_printBlank( Cell * cell );
-void Cell_printNumber( Cell * cell );
-void Cell_printText( Cell * cell );
+void Cell_printBlank( Cell * cell, size_t fieldWidth );
+void Cell_printNumber( Cell * cell, size_t fieldWidth );
+void Cell_printText( Cell * cell, size_t fieldWidth );
 
 #endif // ADT_CELL_H
