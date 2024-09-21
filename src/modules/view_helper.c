@@ -276,14 +276,17 @@ static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
     {
         for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
         {
-             gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
-             printf( "%d%d", rowCounter, colCounter );
+            gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
+            printCellAtXYValue( colCounter - 1, rowCounter - 1, fieldWidth );
         }
     }
 } 
 
 static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth )
 {
-    Cell * cell = Sheet_getCell( sheet, y, x );
-    cell->print( cell , fieldWidth );
+    if ( !Sheet_isEmpty( sheet, y, x ) ) 
+    {
+        Cell * cell = Sheet_getCell( sheet, y, x );
+        cell->print( cell , fieldWidth );
+    }
 }

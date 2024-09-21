@@ -25,6 +25,12 @@ int main( void )
     Sheet_setCell( sheet, 0, 0, cell );
     cell = Cell_createText( "Hello, world" );
     Sheet_setCell( sheet, 0, 1, cell );
+    cell = Cell_createNumber( 2.71 );
+    Sheet_setCell( sheet, 19, 0, cell );
+    cell = Cell_createText( "Right Corner" );
+    Sheet_setCell( sheet, 0, 4, cell );
+    cell = Cell_createText( "Center" );
+    Sheet_setCell( sheet, 10, 3, cell );
 
     setUpScreen();
     showGrid( xCursorPosition, yCursorPosition, fieldWidth, rowHeadersWidth );

@@ -61,7 +61,7 @@ void Cell_printText( Cell * cell, size_t fieldWidth )
         {
             char * cutText = ( char * )malloc( ( fieldWidth + 1 ) * sizeof( char ) );
             strncpy( cutText, cell->data.text, fieldWidth );
-            cutText[ fieldWidth ] = '\0';
+            cutText[ fieldWidth - 1 ] = '\0';
             printf( "%-*s", fieldWidth, cutText );
             free( cutText ) ;
         } 
