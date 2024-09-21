@@ -82,7 +82,7 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
     showStatusBar();
     showColumnsHeaders( fieldWidth, rowHeadersWidth, 0 );
     showRowsHeaders( rowHeadersWidth, 1 );
-    displaySheetDataToGrid( fieldWidth, rowHeadersWidth );
+    displaySheetDataToGrid( fieldWidth, rowHeadersWidth, 0, 0 );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
 
     while ( ( key = cgetc() ) != 'q' ) 
@@ -270,14 +270,14 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     }
 }
 
-static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
+static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn )
 {
     for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
     {
         for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
         {
             gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
-            printCellAtXYValue( colCounter - 1, rowCounter - 1, fieldWidth );
+            printCellAtXYValue( colCounter - 1 + startColumn, rowCounter - 1 + startRow, fieldWidth );
         }
     }
 } 
@@ -288,5 +288,9 @@ static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth )
     {
         Cell * cell = Sheet_getCell( sheet, y, x );
         cell->print( cell , fieldWidth );
+    }
+    else 
+    {
+        printf( "%*s", fieldWidth, "" );
     }
 }

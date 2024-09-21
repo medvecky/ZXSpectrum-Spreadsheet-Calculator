@@ -19,7 +19,7 @@ static void handleRightKey( size_t * xCursorPosition, size_t fieldWidth, size_t 
 static void handleLeftKey( size_t * xCursorPosition, size_t fieldWidth, size_t rowHeadersWidth );
 static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 );
 static void printValueToStatusBar( void );
-static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth );
+static void displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn );
 static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth );
 
 #endif
