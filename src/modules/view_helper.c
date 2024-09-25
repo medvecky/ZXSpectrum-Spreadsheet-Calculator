@@ -156,11 +156,11 @@ static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCurso
     {
         case 0x0a:
         case 's':
-            handleDownKey( yCursorPosition, rowHeadersWidth );
+            handleDownKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x0b:
         case 'w':
-            handleUpKey( yCursorPosition, rowHeadersWidth );
+            handleUpKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x09:
         case 'd':
@@ -173,7 +173,7 @@ static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCurso
     }
 }
 
-static void handleDownKey( size_t * yCursorPosition, size_t rowHeadersWidth )
+static void handleDownKey( size_t * yCursorPosition, size_t xCursorPosition, size_t rowHeadersWidth, size_t fieldWidth )
 {
     if ( *yCursorPosition < SCREEN_HEIGHT  ) 
     {
@@ -188,11 +188,13 @@ static void handleDownKey( size_t * yCursorPosition, size_t rowHeadersWidth )
         {
             yCellCoordinate++;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate - 18 );
+            size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - 19, xCellCoordinate - xShift );
         }
     }
 }
 
-static void handleUpKey( size_t * yCursorPosition, size_t rowHeadersWidth )
+static void handleUpKey( size_t * yCursorPosition, size_t xCursorPosition, size_t rowHeadersWidth, size_t fieldWidth )
 {
     if ( *yCursorPosition > 4 ) 
     {
@@ -207,6 +209,8 @@ static void handleUpKey( size_t * yCursorPosition, size_t rowHeadersWidth )
         {
             yCellCoordinate--;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate + 1 );
+            size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate, xCellCoordinate - xShift );
         }
     }
 }
