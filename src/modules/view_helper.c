@@ -82,6 +82,7 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
     showStatusBar();
     showColumnsHeaders( fieldWidth, rowHeadersWidth, 0 );
     showRowsHeaders( rowHeadersWidth, 1 );
+    printLoadingOnStatusBar();
     displaySheetDataToGrid( fieldWidth, rowHeadersWidth, 0, 0 );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
 
@@ -164,11 +165,11 @@ static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCurso
             break;
         case 0x09:
         case 'd':
-            handleRightKey( xCursorPosition, fieldWidth, rowHeadersWidth );
+            handleRightKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
         case 0x08:
         case 'a':
-            handleLeftKey( xCursorPosition, fieldWidth, rowHeadersWidth );
+            handleLeftKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
     }
 }
@@ -186,6 +187,7 @@ static void handleDownKey( size_t * yCursorPosition, size_t xCursorPosition, siz
         
         if ( yCellCoordinate < NUMBER_OF_ROWS - 1 )
         {
+            printLoadingOnStatusBar();
             yCellCoordinate++;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate - 18 );
             size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
@@ -207,6 +209,7 @@ static void handleUpKey( size_t * yCursorPosition, size_t xCursorPosition, size_
         
         if ( yCellCoordinate >= 1 )
         {
+            printLoadingOnStatusBar();
             yCellCoordinate--;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate + 1 );
             size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
@@ -215,7 +218,7 @@ static void handleUpKey( size_t * yCursorPosition, size_t xCursorPosition, size_
     }
 }
 
-static void handleRightKey( size_t * xCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
+static void handleRightKey( size_t * xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {
     if ( *xCursorPosition < SCREEN_WIDTH - fieldWidth - rowHeadersWidth )  
     {
@@ -228,13 +231,15 @@ static void handleRightKey( size_t * xCursorPosition, size_t fieldWidth, size_t 
         
         if ( xCellCoordinate < NUMBER_OF_COLUMNS - 1 )
         {
+            printLoadingOnStatusBar();
             xCellCoordinate++;
             showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate - 4 );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate - 4 );
         }
     }
 }
 
-static void handleLeftKey( size_t * xCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
+static void handleLeftKey( size_t * xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {
     if ( *xCursorPosition > rowHeadersWidth ) 
     {
@@ -247,8 +252,10 @@ static void handleLeftKey( size_t * xCursorPosition, size_t fieldWidth, size_t r
         
         if ( xCellCoordinate > 0 )
         {
+            printLoadingOnStatusBar();
             xCellCoordinate--;
             showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate );
         }
     }
 }
@@ -297,4 +304,12 @@ static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth )
     {
         printf( "%*s", fieldWidth, "" );
     }
+}
+
+static void printLoadingOnStatusBar( void )
+{
+    inverseAttributes();
+    gotoxy( 0, 0 );
+    printf( "%s", "Loading...                         " );
+    restoreAttributes();
 }
