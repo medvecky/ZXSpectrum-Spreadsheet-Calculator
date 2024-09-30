@@ -42,3 +42,8 @@ Cell * Sheet_getCell( Sheet * sheet, int row, int col )
 
     return cell;
 }
+
+bool Sheet_isEmpty( Sheet * sheet, int row, int col ) 
+{
+    return ( row < 0 || row >= NUMBER_OF_ROWS || col < 0 || col >= NUMBER_OF_COLUMNS || sheet->cells[ row ][ col ] == NULL );
+}

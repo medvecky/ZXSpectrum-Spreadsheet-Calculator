@@ -2,6 +2,7 @@
 
 #include "view_helper.h"
 #include "system_helper.h"
+#include "adt_sheet.h"
 
 extern size_t xCellCoordinate;
 extern size_t yCellCoordinate;
@@ -9,16 +10,35 @@ extern size_t yCellCoordinate;
 static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
     printCursorPosition();
+    printValueToStatusBar();
+    
     gotoxy( xCursorPosition, yCursorPosition );
     inverseAttributes();
-    printf("%*s", fieldWidth, "" );
+
+    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+    {
+        printf( "%*s", fieldWidth, "" );
+    } 
+    else 
+    {
+        printCellAtXYValue( xCellCoordinate, yCellCoordinate, fieldWidth );
+    }
+    
     restoreAttributes();
 }
 
 static void hideCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
     gotoxy( xCursorPosition, yCursorPosition );
-    printf("%*s", fieldWidth, "" );
+    
+    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+    {
+        printf( "%*s", fieldWidth, "" );
+    } 
+    else 
+    {
+        printCellAtXYValue( xCellCoordinate, yCellCoordinate, fieldWidth );
+    }
 }
 
 static void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth, size_t start )
@@ -62,6 +82,8 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
     showStatusBar();
     showColumnsHeaders( fieldWidth, rowHeadersWidth, 0 );
     showRowsHeaders( rowHeadersWidth, 1 );
+    printLoadingOnStatusBar();
+    displaySheetDataToGrid( fieldWidth, rowHeadersWidth, 0, 0 );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
 
     while ( ( key = cgetc() ) != 'q' ) 
@@ -101,30 +123,58 @@ static void printCursorPosition( void )
     restoreAttributes();
 }
 
+static void printValueToStatusBar()
+{
+    inverseAttributes();
+
+    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+    {
+        printf( "                    " );
+    } 
+    else 
+    {
+        Cell * cell = Sheet_getCell( sheet, yCellCoordinate, xCellCoordinate );
+        if ( cell->type == NUMBER_CELL ) 
+        {
+            printf( "%s", "(V)" );
+        } 
+        else if ( cell->type == TEXT_CELL )   
+        {
+            printf( "%s", "(L)" );
+        }
+
+        printf( "%s", " " );
+        cell->print( cell, 0 );
+        printf( "%s", "                  " );
+    }
+
+    restoreAttributes();
+}   
+
 static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {
     switch ( key ) 
     {
         case 0x0a:
         case 's':
-            handleDownKey( yCursorPosition, rowHeadersWidth );
+            handleDownKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x0b:
         case 'w':
-            handleUpKey( yCursorPosition, rowHeadersWidth );
+            handleUpKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x09:
         case 'd':
-            handleRightKey( xCursorPosition, fieldWidth, rowHeadersWidth );
+            handleRightKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
         case 0x08:
         case 'a':
-            handleLeftKey( xCursorPosition, fieldWidth, rowHeadersWidth );
+            handleLeftKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
     }
 }
 
-static void handleDownKey( size_t * yCursorPosition, size_t rowHeadersWidth )
+static void handleDownKey( size_t * yCursorPosition, size_t xCursorPosition, size_t rowHeadersWidth, size_t fieldWidth )
 {
     if ( *yCursorPosition < SCREEN_HEIGHT  ) 
     {
@@ -137,13 +187,16 @@ static void handleDownKey( size_t * yCursorPosition, size_t rowHeadersWidth )
         
         if ( yCellCoordinate < NUMBER_OF_ROWS - 1 )
         {
+            printLoadingOnStatusBar();
             yCellCoordinate++;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate - 18 );
+            size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - 19, xCellCoordinate - xShift );
         }
     }
 }
 
-static void handleUpKey( size_t * yCursorPosition, size_t rowHeadersWidth )
+static void handleUpKey( size_t * yCursorPosition, size_t xCursorPosition, size_t rowHeadersWidth, size_t fieldWidth )
 {
     if ( *yCursorPosition > 4 ) 
     {
@@ -156,13 +209,16 @@ static void handleUpKey( size_t * yCursorPosition, size_t rowHeadersWidth )
         
         if ( yCellCoordinate >= 1 )
         {
+            printLoadingOnStatusBar();
             yCellCoordinate--;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate + 1 );
+            size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate, xCellCoordinate - xShift );
         }
     }
 }
 
-static void handleRightKey( size_t * xCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
+static void handleRightKey( size_t * xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {
     if ( *xCursorPosition < SCREEN_WIDTH - fieldWidth - rowHeadersWidth )  
     {
@@ -175,13 +231,15 @@ static void handleRightKey( size_t * xCursorPosition, size_t fieldWidth, size_t 
         
         if ( xCellCoordinate < NUMBER_OF_COLUMNS - 1 )
         {
+            printLoadingOnStatusBar();
             xCellCoordinate++;
             showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate - 4 );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate - 4 );
         }
     }
 }
 
-static void handleLeftKey( size_t * xCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
+static void handleLeftKey( size_t * xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {
     if ( *xCursorPosition > rowHeadersWidth ) 
     {
@@ -194,8 +252,10 @@ static void handleLeftKey( size_t * xCursorPosition, size_t fieldWidth, size_t r
         
         if ( xCellCoordinate > 0 )
         {
+            printLoadingOnStatusBar();
             xCellCoordinate--;
             showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate );
         }
     }
 }
@@ -211,12 +271,56 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     else 
     {
         *symbol1 = ( char )( ( number / 26 ) + 'A' - 1 ); // Calculate the first symbol.
-        *symbol2 = ( char )( ( number % 26) + 'A' - 1 ); // Calculate the second symbol.
+        *symbol2 = ( char )( ( number % 26 ) + 'A' - 1 ); // Calculate the second symbol.
 
         if ( *symbol2 == '@' ) 
         {
             *symbol2 = 'Z';
-            (*symbol1)--;
+            ( *symbol1 )--;
         }
     }
+}
+
+static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn )
+{
+    for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
+    {
+        for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
+        {
+            gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
+            // printCellAtXYValue( colCounter - 1 + startColumn, rowCounter - 1 + startRow, fieldWidth );
+            size_t x = colCounter - 1 + startColumn;
+            size_t y = rowCounter - 1 + startRow;            
+            if ( !Sheet_isEmpty( sheet, y, x ) ) 
+            {
+                Cell * cell = Sheet_getCell( sheet, y, x );
+                cell->print( cell , fieldWidth );
+            }
+            else 
+            {
+                printf( "%*s", fieldWidth, "" );
+            }
+        }
+    }
+} 
+
+static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth )
+{
+    if ( !Sheet_isEmpty( sheet, y, x ) ) 
+    {
+        Cell * cell = Sheet_getCell( sheet, y, x );
+        cell->print( cell , fieldWidth );
+    }
+    else 
+    {
+        printf( "%*s", fieldWidth, "" );
+    }
+}
+
+static void printLoadingOnStatusBar( void )
+{
+    inverseAttributes();
+    gotoxy( 0, 0 );
+    printf( "%s", "Loading...                         " );
+    restoreAttributes();
 }

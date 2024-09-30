@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 #include "adt_cell.h"
 
@@ -29,17 +31,47 @@ Cell * Cell_createText( char * text )
     return cell;
 }
 
-void Cell_printBlank( Cell * cell ) 
+void Cell_printBlank( Cell * cell, size_t fieldWidth ) 
 {
     
 }
 
-void Cell_printNumber( Cell * cell ) 
+void Cell_printNumber( Cell * cell, size_t fieldWidth ) 
 {
-    printf( "%f", cell->data.number );
+    
+    if ( fieldWidth > 0 ) 
+    {
+        int precision = fieldWidth - ( int )log10( cell->data.number ) - 1;
+        if ( precision < 0 ) precision = 0;
+        if ( precision > 2 ) precision -= 2;
+        printf( "%.*f", precision , cell->data.number );
+    } 
+    else 
+    {
+        printf( "%-*f", fieldWidth, cell->data.number );
+    }
 }
 
-void Cell_printText( Cell * cell ) 
+void Cell_printText( Cell * cell, size_t fieldWidth ) 
 {
-    printf( "%s", cell->data.text );
+    if ( fieldWidth > 0 ) 
+    {
+        size_t textLength = strlen( cell->data.text );
+        if ( textLength > fieldWidth ) 
+        {
+            char * cutText = ( char * )malloc( ( fieldWidth + 1 ) * sizeof( char ) );
+            strncpy( cutText, cell->data.text, fieldWidth );
+            cutText[ fieldWidth - 1 ] = '\0';
+            printf( "%-*s", fieldWidth, cutText );
+            free( cutText ) ;
+        } 
+        else 
+        {
+            printf( "%-*s", fieldWidth, cell->data.text );
+        }
+    } 
+    else 
+    {
+        printf( "%s", cell->data.text );
+    }
 }   
