@@ -288,7 +288,18 @@ static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, 
         for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
         {
             gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
-            printCellAtXYValue( colCounter - 1 + startColumn, rowCounter - 1 + startRow, fieldWidth );
+            // printCellAtXYValue( colCounter - 1 + startColumn, rowCounter - 1 + startRow, fieldWidth );
+            size_t x = colCounter - 1 + startColumn;
+            size_t y = rowCounter - 1 + startRow;            
+            if ( !Sheet_isEmpty( sheet, y, x ) ) 
+            {
+                Cell * cell = Sheet_getCell( sheet, y, x );
+                cell->print( cell , fieldWidth );
+            }
+            else 
+            {
+                printf( "%*s", fieldWidth, "" );
+            }
         }
     }
 } 
