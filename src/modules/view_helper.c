@@ -83,7 +83,7 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
     showColumnsHeaders( fieldWidth, rowHeadersWidth, 0 );
     showRowsHeaders( rowHeadersWidth, 1 );
     printLoadingOnStatusBar();
-    displaySheetDataToGrid( fieldWidth, rowHeadersWidth, 0, 0 );
+    displayInitialSheetDataToGrid( fieldWidth, rowHeadersWidth );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
 
     while ( ( key = cgetc() ) != 'q' ) 
@@ -191,7 +191,7 @@ static void handleDownKey( size_t * yCursorPosition, size_t xCursorPosition, siz
             yCellCoordinate++;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate - 18 );
             size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
-            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - 19, xCellCoordinate - xShift );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - 19, xCellCoordinate - xShift, downScroolCheck);
         }
     }
 }
@@ -213,7 +213,7 @@ static void handleUpKey( size_t * yCursorPosition, size_t xCursorPosition, size_
             yCellCoordinate--;
             showRowsHeaders( rowHeadersWidth, yCellCoordinate + 1 );
             size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
-            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate, xCellCoordinate - xShift );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate, xCellCoordinate - xShift, upScroolCheck );
         }
     }
 }
@@ -234,7 +234,7 @@ static void handleRightKey( size_t * xCursorPosition, size_t yCursorPosition, si
             printLoadingOnStatusBar();
             xCellCoordinate++;
             showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate - 4 );
-            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate - 4 );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate - 4, rightScroolCheck );
         }
     }
 }
@@ -255,7 +255,7 @@ static void handleLeftKey( size_t * xCursorPosition, size_t yCursorPosition, siz
             printLoadingOnStatusBar();
             xCellCoordinate--;
             showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate );
-            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate );
+            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate, leftScroolCheck);
         }
     }
 }
@@ -281,7 +281,27 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     }
 }
 
-static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn )
+bool rightScroolCheck( size_t x, size_t y )
+{
+    return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y, x - 1 );
+}
+
+bool leftScroolCheck( size_t x, size_t y )
+{
+    return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y, x + 1 );
+}
+
+bool upScroolCheck( size_t x, size_t y )
+{
+    return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y + 1, x );
+}
+
+bool downScroolCheck( size_t x, size_t y )
+{
+    return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y - 1, x );
+}
+
+static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn, DirectionCheck directionCheck )
 {
     for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
     {
@@ -290,15 +310,38 @@ static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, 
             gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
             // printCellAtXYValue( colCounter - 1 + startColumn, rowCounter - 1 + startRow, fieldWidth );
             size_t x = colCounter - 1 + startColumn;
-            size_t y = rowCounter - 1 + startRow;            
+            size_t y = rowCounter - 1 + startRow;
+            
+            if ( directionCheck( x, y ) )
+            {
+                if ( !Sheet_isEmpty( sheet, y, x ) )    
+                {
+                    Cell * cell = Sheet_getCell( sheet, y, x );
+                    cell->print( cell , fieldWidth );
+                }
+                else 
+                {
+                    printf( "%*s", fieldWidth, "" );
+                }
+            }
+        }
+    }
+}
+
+static void  displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
+{
+    for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
+    {
+        for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
+        {
+            gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
+            // printCellAtXYValue( colCounter - 1 + startColumn, rowCounter - 1 + startRow, fieldWidth );
+            size_t x = colCounter - 1;
+            size_t y = rowCounter - 1;            
             if ( !Sheet_isEmpty( sheet, y, x ) ) 
             {
                 Cell * cell = Sheet_getCell( sheet, y, x );
                 cell->print( cell , fieldWidth );
-            }
-            else 
-            {
-                printf( "%*s", fieldWidth, "" );
             }
         }
     }
