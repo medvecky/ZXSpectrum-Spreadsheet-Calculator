@@ -24,6 +24,11 @@ void Sheet_setCell( Sheet * sheet, int row, int col, Cell * cell )
     {
         if ( sheet->cells[ row ][ col ] != NULL ) 
         {
+            if ( sheet->cells[ row ][ col ]->type == TEXT_CELL ) 
+            {
+                free( sheet->cells[ row ][ col ]->data.text );
+            }
+            
             free( sheet->cells[ row ][ col ] );
         }
         

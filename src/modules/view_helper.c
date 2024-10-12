@@ -156,20 +156,23 @@ static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCurso
     switch ( key ) 
     {
         case 0x0a:
-        case 's':
+        case 'j':
             handleDownKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x0b:
-        case 'w':
+        case 'k':
             handleUpKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x09:
-        case 'd':
+        case 'l':
             handleRightKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
         case 0x08:
-        case 'a':
+        case 'h':
             handleLeftKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
+            break;
+        case 'i':
+            handleInput();
             break;
     }
 }
@@ -281,22 +284,57 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     }
 }
 
-bool rightScroolCheck( size_t x, size_t y )
+static int handleInput()
+{
+    gotoxy( 0, 2 );
+
+    char * inputString = getInputString();
+
+    puts( inputString );
+    
+    return EXIT_SUCCESS;
+}
+
+static char * getInputString()
+{
+    char * inputString = ( char * )malloc( MAX_INPUT_LENGTH * sizeof( char ) );
+    
+    if ( inputString == NULL ) 
+    {
+        puts( "Memory allocation failed" );
+        cgetc();
+        
+        return NULL;
+    }
+    
+    if ( fgets( inputString, MAX_INPUT_LENGTH, stdin ) == NULL ) 
+    {
+        puts( "Error reading input" );
+        free( inputString );
+        cgetc();
+    
+        return NULL;
+    }
+
+    return inputString;
+}
+
+static bool rightScroolCheck( size_t x, size_t y )
 {
     return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y, x - 1 );
 }
 
-bool leftScroolCheck( size_t x, size_t y )
+static bool leftScroolCheck( size_t x, size_t y )
 {
     return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y, x + 1 );
 }
 
-bool upScroolCheck( size_t x, size_t y )
+static bool upScroolCheck( size_t x, size_t y )
 {
     return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y + 1, x );
 }
 
-bool downScroolCheck( size_t x, size_t y )
+static bool downScroolCheck( size_t x, size_t y )
 {
     return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y - 1, x );
 }
