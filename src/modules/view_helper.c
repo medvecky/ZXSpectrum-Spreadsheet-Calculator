@@ -1,4 +1,6 @@
 #include <conio.h>
+#include <ctype.h>
+#include <math.h>
 
 #include "view_helper.h"
 #include "system_helper.h"
@@ -172,7 +174,7 @@ static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCurso
             handleLeftKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
         case 'i':
-            handleInput();
+            handleInput( xCursorPosition, *yCursorPosition, fieldWidth );
             break;
     }
 }
@@ -284,15 +286,31 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     }
 }
 
-static int handleInput()
+static int handleInput( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
     gotoxy( 0, 2 );
-
-    char * inputString = getInputString();
-
-    puts( inputString );
+    Cell * cell = createCell();
+    Sheet_setCell( sheet, yCellCoordinate, xCellCoordinate, cell );
     
     return EXIT_SUCCESS;
+}
+
+static Cell * createCell()
+{
+    Cell * cell = NULL;
+    char * inputString = getInputString();
+
+    if ( isNumber( inputString ) ) 
+    {
+        double number = atof( inputString );
+        cell = Cell_createNumber( number );
+    }
+    else 
+    {
+        cell = Cell_createText( inputString );
+    }
+
+    return cell;
 }
 
 static char * getInputString()
@@ -404,4 +422,20 @@ static void printLoadingOnStatusBar( void )
     gotoxy( 0, 0 );
     printf( "%s", "Loading...                         " );
     restoreAttributes();
+}
+
+static bool isNumber( const char * str ) 
+{
+    size_t i = 0;
+
+    for ( i = 0; str[ i ]; i++ ) 
+    {
+        if ( !isdigit( str[ i ] ) && str[ i ] != '-' && 
+                str[ i ] != 'e' && str[ i ] != '.' ) 
+        {
+            return false;
+        }
+    }
+    
+    return true;
 }
