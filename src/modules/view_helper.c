@@ -334,6 +334,13 @@ static char * getInputString()
         return NULL;
     }
 
+    size_t len = strlen( inputString );
+    
+    if ( len > 0 && inputString[ len - 1 ] == '\n' ) 
+    {
+        inputString[ len - 1 ] = '\0';   
+    }
+
     return inputString;
 }
 
