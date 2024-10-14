@@ -125,7 +125,7 @@ static void printCursorPosition( void )
     restoreAttributes();
 }
 
-static void printValueToStatusBar()
+static void printValueToStatusBar( void )
 {
     inverseAttributes();
 
@@ -159,23 +159,33 @@ static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCurso
     {
         case 0x0a:
         case 'j':
+        case 'J':
             handleDownKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x0b:
         case 'k':
+        case 'K':
             handleUpKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x09:
         case 'l':
+        case 'L':
             handleRightKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
         case 0x08:
         case 'h':
+        case 'H':
             handleLeftKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
         case 'i':
-            handleInput( xCursorPosition, *yCursorPosition, fieldWidth );
+        case 'I':
+            handleInput();
             break;
+        case 'd':
+        case 'D':
+            handleDeleteCell();
+            break;
+        
     }
 }
 
@@ -286,16 +296,18 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     }
 }
 
-static int handleInput( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
+static int handleInput( void )
 {
     gotoxy( 0, 2 );
     Cell * cell = createCell();
     Sheet_setCell( sheet, yCellCoordinate, xCellCoordinate, cell );
+    gotoxy( 0, 2 );
+    printf( "%*s", SCREEN_WIDTH, " " );
     
     return EXIT_SUCCESS;
 }
 
-static Cell * createCell()
+static Cell * createCell( void )
 {
     Cell * cell = NULL;
     char * inputString = getInputString();
@@ -313,7 +325,7 @@ static Cell * createCell()
     return cell;
 }
 
-static char * getInputString()
+static char * getInputString( void )
 {
     char * inputString = ( char * )malloc( MAX_INPUT_LENGTH * sizeof( char ) );
     
@@ -445,4 +457,9 @@ static bool isNumber( const char * str )
     }
     
     return true;
+}
+
+void handleDeleteCell( void )
+{
+    Sheet_clearCell( sheet, yCellCoordinate, xCellCoordinate );
 }
