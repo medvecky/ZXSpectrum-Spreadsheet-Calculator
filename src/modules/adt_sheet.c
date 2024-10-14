@@ -24,6 +24,11 @@ void Sheet_setCell( Sheet * sheet, int row, int col, Cell * cell )
     {
         if ( sheet->cells[ row ][ col ] != NULL ) 
         {
+            if ( sheet->cells[ row ][ col ]->type == TEXT_CELL ) 
+            {
+                free( sheet->cells[ row ][ col ]->data.text );
+            }
+            
             free( sheet->cells[ row ][ col ] );
         }
         
@@ -46,4 +51,21 @@ Cell * Sheet_getCell( Sheet * sheet, int row, int col )
 bool Sheet_isEmpty( Sheet * sheet, int row, int col ) 
 {
     return ( row < 0 || row >= NUMBER_OF_ROWS || col < 0 || col >= NUMBER_OF_COLUMNS || sheet->cells[ row ][ col ] == NULL );
+}
+
+void Sheet_clearCell( Sheet * sheet, int row, int col ) 
+{
+    if ( row >= 0 && row < NUMBER_OF_ROWS && col >= 0 && col < NUMBER_OF_COLUMNS ) 
+    {
+        if ( sheet->cells[ row ][ col ] != NULL ) 
+        {
+            if ( sheet->cells[ row ][ col ]->type == TEXT_CELL ) 
+            {
+                free( sheet->cells[ row ][ col ]->data.text );
+            }
+            
+            free( sheet->cells[ row ][ col ] );
+            sheet->cells[ row ][ col ] = NULL;
+        }    
+    }
 }

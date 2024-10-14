@@ -1,4 +1,6 @@
 #include <conio.h>
+#include <ctype.h>
+#include <math.h>
 
 #include "view_helper.h"
 #include "system_helper.h"
@@ -123,7 +125,7 @@ static void printCursorPosition( void )
     restoreAttributes();
 }
 
-static void printValueToStatusBar()
+static void printValueToStatusBar( void )
 {
     inverseAttributes();
 
@@ -156,21 +158,34 @@ static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCurso
     switch ( key ) 
     {
         case 0x0a:
-        case 's':
+        case 'j':
+        case 'J':
             handleDownKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x0b:
-        case 'w':
+        case 'k':
+        case 'K':
             handleUpKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
             break;
         case 0x09:
-        case 'd':
+        case 'l':
+        case 'L':
             handleRightKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
         case 0x08:
-        case 'a':
+        case 'h':
+        case 'H':
             handleLeftKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
             break;
+        case 'i':
+        case 'I':
+            handleInput();
+            break;
+        case 'd':
+        case 'D':
+            handleDeleteCell();
+            break;
+        
     }
 }
 
@@ -281,22 +296,82 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     }
 }
 
-bool rightScroolCheck( size_t x, size_t y )
+static int handleInput( void )
+{
+    gotoxy( 0, 2 );
+    Cell * cell = createCell();
+    Sheet_setCell( sheet, yCellCoordinate, xCellCoordinate, cell );
+    gotoxy( 0, 2 );
+    printf( "%*s", SCREEN_WIDTH, " " );
+    
+    return EXIT_SUCCESS;
+}
+
+static Cell * createCell( void )
+{
+    Cell * cell = NULL;
+    char * inputString = getInputString();
+
+    if ( isNumber( inputString ) ) 
+    {
+        double number = atof( inputString );
+        cell = Cell_createNumber( number );
+    }
+    else 
+    {
+        cell = Cell_createText( inputString );
+    }
+
+    return cell;
+}
+
+static char * getInputString( void )
+{
+    char * inputString = ( char * )malloc( MAX_INPUT_LENGTH * sizeof( char ) );
+    
+    if ( inputString == NULL ) 
+    {
+        puts( "Memory allocation failed" );
+        cgetc();
+        
+        return NULL;
+    }
+    
+    if ( fgets( inputString, MAX_INPUT_LENGTH, stdin ) == NULL ) 
+    {
+        puts( "Error reading input" );
+        free( inputString );
+        cgetc();
+    
+        return NULL;
+    }
+
+    size_t len = strlen( inputString );
+    
+    if ( len > 0 && inputString[ len - 1 ] == '\n' ) 
+    {
+        inputString[ len - 1 ] = '\0';   
+    }
+
+    return inputString;
+}
+
+static bool rightScroolCheck( size_t x, size_t y )
 {
     return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y, x - 1 );
 }
 
-bool leftScroolCheck( size_t x, size_t y )
+static bool leftScroolCheck( size_t x, size_t y )
 {
     return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y, x + 1 );
 }
 
-bool upScroolCheck( size_t x, size_t y )
+static bool upScroolCheck( size_t x, size_t y )
 {
     return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y + 1, x );
 }
 
-bool downScroolCheck( size_t x, size_t y )
+static bool downScroolCheck( size_t x, size_t y )
 {
     return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y - 1, x );
 }
@@ -366,4 +441,25 @@ static void printLoadingOnStatusBar( void )
     gotoxy( 0, 0 );
     printf( "%s", "Loading...                         " );
     restoreAttributes();
+}
+
+static bool isNumber( const char * str ) 
+{
+    size_t i = 0;
+
+    for ( i = 0; str[ i ]; i++ ) 
+    {
+        if ( !isdigit( str[ i ] ) && str[ i ] != '-' && 
+                str[ i ] != 'e' && str[ i ] != '.' ) 
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+void handleDeleteCell( void )
+{
+    Sheet_clearCell( sheet, yCellCoordinate, xCellCoordinate );
 }
