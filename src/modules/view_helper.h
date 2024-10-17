@@ -5,8 +5,6 @@
 
 #include "adt_sheet.h"
 
-#define MAX_INPUT_LENGTH 80
-
 typedef bool ( * DirectionCheck )( size_t, size_t );
 
 static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth );
@@ -31,10 +29,6 @@ static bool rightScroolCheck( size_t x, size_t y );
 static bool leftScroolCheck( size_t x, size_t y );
 static bool upScroolCheck( size_t x, size_t y );
 static bool downScroolCheck( size_t x, size_t y );
-static int handleInput( void );
-static char * getInputString( void );
-static bool isNumber( const char * str );
-static Cell * createCell( void );
 static void handleDeleteCell( void );
 
 #endif

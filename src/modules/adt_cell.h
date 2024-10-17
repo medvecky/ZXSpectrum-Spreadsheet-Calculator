@@ -1,6 +1,8 @@
 #ifndef ADT_CELL_H
 #define ADT_CELL_H
 
+#include <stdlib.h>
+
 typedef enum 
 {
     BLANK_CELL,

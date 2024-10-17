@@ -4,10 +4,11 @@ EXEC_OUTPUT=build/ttcalc
 # List all your source files here
 SOURCES = ttcalc.c\
 			modules/system_helper.c\
+			modules/input_helper.c\
 			modules/view_helper.c\
 			modules/adt_cell.c\
 			modules/adt_sheet.c
-
+		
 # Maybe you'll need to edit this
 
 # ZX Spectrum
