@@ -1,10 +1,11 @@
 #include <conio.h>
 #include <ctype.h>
-#include <math.h>
 
 #include "view_helper.h"
 #include "system_helper.h"
 #include "adt_sheet.h"
+#include "input_helper.h"
+#include "command_helper.h"
 
 extern size_t xCellCoordinate;
 extern size_t yCellCoordinate;
@@ -43,7 +44,7 @@ static void hideCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size
     }
 }
 
-static void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth, size_t start )
+void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth, size_t start )
 {
     char column = 'A';
     inverseAttributes();
@@ -67,7 +68,7 @@ static void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth, size_
     restoreAttributes();
 }
 
-static void showRowsHeaders( size_t fieldWidth, size_t start ) 
+void showRowsHeaders( size_t fieldWidth, size_t start ) 
 {
     inverseAttributes();
     for ( size_t counter = 1; counter <= SCREEN_HEIGHT - 3; counter++ ) 
@@ -153,128 +154,6 @@ static void printValueToStatusBar( void )
     restoreAttributes();
 }   
 
-static void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
-{
-    switch ( key ) 
-    {
-        case 0x0a:
-        case 'j':
-        case 'J':
-            handleDownKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
-            break;
-        case 0x0b:
-        case 'k':
-        case 'K':
-            handleUpKey( yCursorPosition, *xCursorPosition, rowHeadersWidth, fieldWidth );
-            break;
-        case 0x09:
-        case 'l':
-        case 'L':
-            handleRightKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
-            break;
-        case 0x08:
-        case 'h':
-        case 'H':
-            handleLeftKey( xCursorPosition, *yCursorPosition, fieldWidth, rowHeadersWidth );
-            break;
-        case 'i':
-        case 'I':
-            handleInput();
-            break;
-        case 'd':
-        case 'D':
-            handleDeleteCell();
-            break;
-        
-    }
-}
-
-static void handleDownKey( size_t * yCursorPosition, size_t xCursorPosition, size_t rowHeadersWidth, size_t fieldWidth )
-{
-    if ( *yCursorPosition < SCREEN_HEIGHT  ) 
-    {
-        ( *yCursorPosition )++;
-        yCellCoordinate++;
-    }
-    else
-    {
-        *yCursorPosition = SCREEN_HEIGHT;
-        
-        if ( yCellCoordinate < NUMBER_OF_ROWS - 1 )
-        {
-            printLoadingOnStatusBar();
-            yCellCoordinate++;
-            showRowsHeaders( rowHeadersWidth, yCellCoordinate - 18 );
-            size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
-            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - 19, xCellCoordinate - xShift, downScroolCheck);
-        }
-    }
-}
-
-static void handleUpKey( size_t * yCursorPosition, size_t xCursorPosition, size_t rowHeadersWidth, size_t fieldWidth )
-{
-    if ( *yCursorPosition > 4 ) 
-    {
-        ( *yCursorPosition )--;
-        yCellCoordinate--;
-    }
-    else
-    {
-        *yCursorPosition = 4;
-        
-        if ( yCellCoordinate >= 1 )
-        {
-            printLoadingOnStatusBar();
-            yCellCoordinate--;
-            showRowsHeaders( rowHeadersWidth, yCellCoordinate + 1 );
-            size_t xShift = ( ( xCursorPosition - rowHeadersWidth ) / fieldWidth );
-            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate, xCellCoordinate - xShift, upScroolCheck );
-        }
-    }
-}
-
-static void handleRightKey( size_t * xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
-{
-    if ( *xCursorPosition < SCREEN_WIDTH - fieldWidth - rowHeadersWidth )  
-    {
-        ( *xCursorPosition ) += fieldWidth;
-        xCellCoordinate++;
-    }
-    else
-    {
-        *xCursorPosition = SCREEN_WIDTH - fieldWidth - rowHeadersWidth;
-        
-        if ( xCellCoordinate < NUMBER_OF_COLUMNS - 1 )
-        {
-            printLoadingOnStatusBar();
-            xCellCoordinate++;
-            showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate - 4 );
-            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate - 4, rightScroolCheck );
-        }
-    }
-}
-
-static void handleLeftKey( size_t * xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
-{
-    if ( *xCursorPosition > rowHeadersWidth ) 
-    {
-        ( *xCursorPosition ) -= fieldWidth;
-        xCellCoordinate--;
-    }
-    else
-    {
-        *xCursorPosition = rowHeadersWidth;
-        
-        if ( xCellCoordinate > 0 )
-        {
-            printLoadingOnStatusBar();
-            xCellCoordinate--;
-            showColumnsHeaders( fieldWidth, rowHeadersWidth, xCellCoordinate );
-            displaySheetDataToGrid( fieldWidth, rowHeadersWidth, yCellCoordinate - yCursorPosition + 4, xCellCoordinate, leftScroolCheck);
-        }
-    }
-}
-
 static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 ) 
 {
     if ( number <= 26 ) 
@@ -296,87 +175,7 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
     }
 }
 
-static int handleInput( void )
-{
-    gotoxy( 0, 2 );
-    Cell * cell = createCell();
-    Sheet_setCell( sheet, yCellCoordinate, xCellCoordinate, cell );
-    gotoxy( 0, 2 );
-    printf( "%*s", SCREEN_WIDTH, " " );
-    
-    return EXIT_SUCCESS;
-}
-
-static Cell * createCell( void )
-{
-    Cell * cell = NULL;
-    char * inputString = getInputString();
-
-    if ( isNumber( inputString ) ) 
-    {
-        double number = atof( inputString );
-        cell = Cell_createNumber( number );
-    }
-    else 
-    {
-        cell = Cell_createText( inputString );
-    }
-
-    return cell;
-}
-
-static char * getInputString( void )
-{
-    char * inputString = ( char * )malloc( MAX_INPUT_LENGTH * sizeof( char ) );
-    
-    if ( inputString == NULL ) 
-    {
-        puts( "Memory allocation failed" );
-        cgetc();
-        
-        return NULL;
-    }
-    
-    if ( fgets( inputString, MAX_INPUT_LENGTH, stdin ) == NULL ) 
-    {
-        puts( "Error reading input" );
-        free( inputString );
-        cgetc();
-    
-        return NULL;
-    }
-
-    size_t len = strlen( inputString );
-    
-    if ( len > 0 && inputString[ len - 1 ] == '\n' ) 
-    {
-        inputString[ len - 1 ] = '\0';   
-    }
-
-    return inputString;
-}
-
-static bool rightScroolCheck( size_t x, size_t y )
-{
-    return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y, x - 1 );
-}
-
-static bool leftScroolCheck( size_t x, size_t y )
-{
-    return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y, x + 1 );
-}
-
-static bool upScroolCheck( size_t x, size_t y )
-{
-    return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y + 1, x );
-}
-
-static bool downScroolCheck( size_t x, size_t y )
-{
-    return !Sheet_isEmpty( sheet, y, x ) ||  !Sheet_isEmpty( sheet, y - 1, x );
-}
-
-static void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn, DirectionCheck directionCheck )
+void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn, DirectionCheck directionCheck )
 {
     for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
     {
@@ -435,31 +234,10 @@ static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth )
     }
 }
 
-static void printLoadingOnStatusBar( void )
+void printLoadingOnStatusBar( void )
 {
     inverseAttributes();
     gotoxy( 0, 0 );
     printf( "%s", "Loading...                         " );
     restoreAttributes();
-}
-
-static bool isNumber( const char * str ) 
-{
-    size_t i = 0;
-
-    for ( i = 0; str[ i ]; i++ ) 
-    {
-        if ( !isdigit( str[ i ] ) && str[ i ] != '-' && 
-                str[ i ] != 'e' && str[ i ] != '.' ) 
-        {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-void handleDeleteCell( void )
-{
-    Sheet_clearCell( sheet, yCellCoordinate, xCellCoordinate );
 }
