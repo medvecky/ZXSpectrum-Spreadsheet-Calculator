@@ -7,7 +7,8 @@ SOURCES = ttcalc.c\
 			modules/input_helper.c\
 			modules/view_helper.c\
 			modules/adt_cell.c\
-			modules/adt_sheet.c
+			modules/adt_sheet.c\
+			modules/command_helper.c
 		
 # Maybe you'll need to edit this
 
