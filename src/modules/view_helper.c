@@ -9,6 +9,7 @@
 
 extern size_t xCellCoordinate;
 extern size_t yCellCoordinate;
+extern bool isRunning;
 
 static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
@@ -89,8 +90,9 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
     displayInitialSheetDataToGrid( fieldWidth, rowHeadersWidth );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
 
-    while ( ( key = cgetc() ) != 'q' ) 
+    while ( isRunning ) 
     {   
+        key = cgetc();
         hideCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
         handleKeyPress( key, &xCursorPosition, &yCursorPosition, fieldWidth, rowHeadersWidth );
         showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );

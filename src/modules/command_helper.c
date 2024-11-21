@@ -2,6 +2,7 @@
 #include "system_helper.h"
 #include "input_helper.h"
 #include "view_helper.h"
+#include "command_token_helper.h"
 
 extern size_t xCellCoordinate;
 extern size_t yCellCoordinate;
@@ -37,6 +38,9 @@ void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCursorPositi
         case 'd':
         case 'D':
             handleDeleteCell();
+            break;
+        case '/':
+            handleCommandToken();
             break;
         
     }
