@@ -4,6 +4,8 @@
 
 #include "command_token_helper.h"
 #include "system_helper.h"
+#include "file_io_helper.h"
+#include "input_helper.h"
 
 extern bool isRunning;
 
@@ -39,7 +41,7 @@ void getAndHandleCommand( void )
 
 void handleStorageCommand( void )
 {
-    showCommandHintInStatusBar( "Storage", "Q" );
+    showCommandHintInStatusBar( "Storage", "S Q" );
 
     char command = cgetc();
 
@@ -48,6 +50,10 @@ void handleStorageCommand( void )
         case 'q':
         case 'Q':
             isRunning = false;
+            break;
+        case 's':
+        case 'S':
+            saveDataToDiskHandler();
             break;
     }
 }
@@ -58,4 +64,20 @@ void clearStatusBarCommandHint( void )
     gotoxy( 0, 1 );
     printf( "%*s", SCREEN_WIDTH, " " );
     restoreAttributes();
+}
+
+void saveDataToDiskHandler( void )
+{
+    showCommandHintInStatusBar( "Storage", "File for Saving" );
+    gotoxy( 0, 2 );
+    char * fileName = getInputString();
+    
+    if ( saveDataToDisk( fileName ) == EXIT_FAILURE )
+    {
+        cgetc();    
+    }
+
+    gotoxy( 0, 2 );
+    printf( "%*s", SCREEN_WIDTH, " " );
+    free( fileName );
 }

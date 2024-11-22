@@ -6,5 +6,6 @@ void showCommandHintInStatusBar( char * categoryHint, char * commandHint );
 void getAndHandleCommand( void );
 void handleStorageCommand( void );
 void clearStatusBarCommandHint( void );
+void saveDataToDiskHandler( void );
 
 #endif // COMMAND_TOKEN_HELPER_H
