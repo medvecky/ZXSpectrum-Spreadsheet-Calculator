@@ -26,7 +26,7 @@ MKDIR = mkdir -p
 CC=docker run  --platform linux/amd64 -v .:/src/ -it z88dk/z88dk zcc
 AS=docker run  --platform linux/amd64 -v .:/src/ -it z88dk/z88dk zcc
 # TARGET=+zxn -subtype=nex -lndos -lm -DAMALLOC
-TARGET=+zx -lndos -lm -DAMALLOC
+TARGET=+zx -lndos -lm -DAMALLOC -lesxdos
 # TARGET=+cpm -lndos -lzxcpm -lm -DAMALLOC -D__CPM__
 VERBOSITY=-vn
 OUT_DIR=build bin

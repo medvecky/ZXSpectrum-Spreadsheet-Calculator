@@ -6,6 +6,7 @@
 #include "system_helper.h"
 #include "file_io_helper.h"
 #include "input_helper.h"
+#include "view_helper.h"
 
 extern bool isRunning;
 
@@ -71,9 +72,11 @@ void saveDataToDiskHandler( void )
     showCommandHintInStatusBar( "Storage", "File for Saving" );
     gotoxy( 0, 2 );
     char * fileName = getInputString();
-    
+    printLoadingOnStatusBar();
+
     if ( saveDataToDisk( fileName ) == EXIT_FAILURE )
     {
+        showCommandHintInStatusBar( "Error", "Failed to write data to disk" );
         cgetc();    
     }
 
