@@ -40,7 +40,7 @@ void handleKeyPress( char key,  size_t * xCursorPosition, size_t * yCursorPositi
             handleDeleteCell();
             break;
         case '/':
-            handleCommandToken();
+            handleCommandToken( fieldWidth, rowHeadersWidth );
             break;
         
     }

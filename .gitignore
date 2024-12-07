@@ -5,3 +5,4 @@ build/
 *.lis
 *.sym
 workspace.code-workspace
+.DS_Store

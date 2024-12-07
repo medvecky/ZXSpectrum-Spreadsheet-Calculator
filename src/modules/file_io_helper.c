@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <float.h>
 #include <arch/zxn/esxdos.h>
+
+#include <conio.h>
 
 #include "file_io_helper.h"
 #include "system_helper.h"
@@ -67,4 +70,73 @@ int serializeTableDataToDisk( unsigned char fout )
             }
         }
     }
+}
+
+int loadDataFromDisk( char * fileName )
+{
+    unsigned char fin = 0xff;
+    if ( ( fin = esx_f_open( fileName, ESX_MODE_OPEN_EXIST | ESX_MODE_R ) ) == 0xff )
+    {
+        return EXIT_FAILURE;
+    }
+
+    deSerializeTableDataToDisk( fin );
+
+    esx_f_close( fin );
+    return EXIT_SUCCESS;
+}
+
+int deSerializeTableDataToDisk( unsigned char fin )
+{
+    char buffer[ MAX_BUFFER_SIZE ];
+    while ( esxdosReadLine( fin, buffer, sizeof( buffer ) ) > 0 )
+    {
+        size_t row, col;
+        char type;
+        char data[ MAX_BUFFER_SIZE ];
+
+        if ( ( sscanf( buffer, "%u,%u,%c,%s", &row, &col, &type, &data ) ) == 4 ) 
+        {
+            if ( type == 'N' ) 
+            {
+                double number = atof( data );
+                Sheet_setCell( sheet, row, col, Cell_createNumber( number ) );
+            } 
+            else if ( type == 'T' ) 
+            {
+                Sheet_setCell( sheet, row, col, Cell_createText( strdup( data ) ) );
+            }
+        }
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int esxdosReadLine( unsigned char handle, char * buffer, int buffer_size ) 
+{
+    unsigned char byte;
+    int bytes_read = 0;
+
+    while ( bytes_read < buffer_size - 1 ) 
+    { 
+        if ( esxdos_f_read( handle, &byte, 1 ) == 0 ) 
+        {
+            if ( bytes_read == 0 ) 
+            {
+                return 0; 
+            }
+            break;
+        }
+
+        if ( byte == '\n' ) 
+        {
+            break; 
+        }
+
+        buffer[ bytes_read++ ] = byte;
+    }
+
+    buffer[ bytes_read ] = '\0'; 
+    
+    return bytes_read; 
 }

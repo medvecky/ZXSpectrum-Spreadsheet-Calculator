@@ -10,10 +10,10 @@
 
 extern bool isRunning;
 
-void handleCommandToken( void )
+void handleCommandToken( size_t fieldWidth, size_t rowHeadersWidth )
 {
     showCommandHintInStatusBar( "Command", "S" );
-    getAndHandleCommand();
+    getAndHandleCommand( fieldWidth, rowHeadersWidth );
     clearStatusBarCommandHint();
 }
 
@@ -22,12 +22,12 @@ void showCommandHintInStatusBar( char * categoryHint, char * commandHint )
     inverseAttributes();
     
     gotoxy( 0, 1 );
-    printf( "%s: %s                   ", categoryHint, commandHint );
+    printf( "%s: %s", categoryHint, commandHint );
 
     restoreAttributes();
 }
 
-void getAndHandleCommand( void )
+void getAndHandleCommand( size_t fieldWidth, size_t rowHeadersWidth )
 {
     char command = cgetc();
 
@@ -35,14 +35,14 @@ void getAndHandleCommand( void )
     {
         case 's':
         case 'S':
-            handleStorageCommand();
+            handleStorageCommand( fieldWidth, rowHeadersWidth );
             break;
     }
 }
 
-void handleStorageCommand( void )
+void handleStorageCommand( size_t fieldWidth, size_t rowHeadersWidth )
 {
-    showCommandHintInStatusBar( "Storage", "S Q" );
+    showCommandHintInStatusBar( "Storage", "S L Q" );
 
     char command = cgetc();
 
@@ -55,6 +55,11 @@ void handleStorageCommand( void )
         case 's':
         case 'S':
             saveDataToDiskHandler();
+            break;
+        case 'l':
+        case 'L':
+            loadDataFromDiskHandler();
+            displayInitialSheetDataToGrid( fieldWidth, rowHeadersWidth );
             break;
     }
 }
@@ -77,6 +82,24 @@ void saveDataToDiskHandler( void )
     if ( saveDataToDisk( fileName ) == EXIT_FAILURE )
     {
         showCommandHintInStatusBar( "Error", "Failed to write data to disk" );
+        cgetc();    
+    }
+
+    gotoxy( 0, 2 );
+    printf( "%*s", SCREEN_WIDTH, " " );
+    free( fileName );
+}
+
+void loadDataFromDiskHandler( void )
+{
+    showCommandHintInStatusBar( "Storage", "File to Load" );
+    gotoxy( 0, 2 );
+    char * fileName = getInputString();
+    printLoadingOnStatusBar();
+
+    if ( loadDataFromDisk( fileName ) == EXIT_FAILURE )
+    {
+        showCommandHintInStatusBar( "Error", "Failed to load data from disk" );
         cgetc();    
     }
 

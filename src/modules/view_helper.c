@@ -204,7 +204,7 @@ void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t 
     }
 }
 
-static void  displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
+void  displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
 {
     for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
     {

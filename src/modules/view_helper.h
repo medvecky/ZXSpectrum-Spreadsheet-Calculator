@@ -17,7 +17,7 @@ static void printCursorPosition( void );
 static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 );
 static void printValueToStatusBar( void );
 void displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn, DirectionCheck directionCheck );
-static void displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth );
+void displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth );
 static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth );
 void printLoadingOnStatusBar( void );
 
