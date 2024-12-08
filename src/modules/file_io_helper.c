@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <float.h>
 #include <arch/zxn/esxdos.h>
-
 #include <conio.h>
 
 #include "file_io_helper.h"
@@ -139,4 +138,28 @@ int esxdosReadLine( unsigned char handle, char * buffer, int buffer_size )
     buffer[ bytes_read ] = '\0'; 
     
     return bytes_read; 
+}
+
+void saveDataToTape( void )
+{
+    char name[ 11 ] = "MyString"; 
+    char data[ 100 ] = "Hello, World!"; 
+    size_t load_address = (size_t)data; 
+    size_t length = strlen( data ) + 1; 
+    
+    tape_save( name, load_address, (void *)data, length );
+}
+
+void loadDataFromTape( void )
+{
+    char name[ 11 ]; 
+    char data[ 100 ];
+    size_t load_address = (size_t)data;
+    size_t length = 100;
+
+    tape_load_block(load_address, length, 0xff);
+
+    gotoxy( 0, 2 );
+    printf( "Data[%s]", data );
+    cgetc();
 }

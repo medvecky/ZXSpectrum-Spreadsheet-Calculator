@@ -42,7 +42,7 @@ void getAndHandleCommand( size_t fieldWidth, size_t rowHeadersWidth )
 
 void handleStorageCommand( size_t fieldWidth, size_t rowHeadersWidth )
 {
-    showCommandHintInStatusBar( "Storage", "S L Q" );
+    showCommandHintInStatusBar( "Storage", "S W L R Q" );
 
     char command = cgetc();
 
@@ -61,6 +61,15 @@ void handleStorageCommand( size_t fieldWidth, size_t rowHeadersWidth )
             loadDataFromDiskHandler();
             displayInitialSheetDataToGrid( fieldWidth, rowHeadersWidth );
             break;
+        case 'w':
+        case 'W':
+            saveDataToTapeHandler();
+            break;  
+        case 'r':
+        case 'R':
+            loadDataFromTapeHandler();
+            displayInitialSheetDataToGrid( fieldWidth, rowHeadersWidth );
+            break;  
     }
 }
 
@@ -106,4 +115,27 @@ void loadDataFromDiskHandler( void )
     gotoxy( 0, 2 );
     printf( "%*s", SCREEN_WIDTH, " " );
     free( fileName );
+}
+
+void saveDataToTapeHandler( void )
+{
+    showCommandHintInStatusBar( "Storage", "Start the tape and press any key" );
+    cgetc();
+    printLoadingOnStatusBar();
+
+    saveDataToTape();
+
+    gotoxy( 0, 2 );
+    printf( "%*s", SCREEN_WIDTH, " " );
+}
+
+void loadDataFromTapeHandler( void )
+{
+    showCommandHintInStatusBar( "Storage", "Load From Tape" );
+    printLoadingOnStatusBar();
+
+    loadDataFromTape();
+
+    gotoxy( 0, 2 );
+    printf( "%*s", SCREEN_WIDTH, " " ); 
 }
