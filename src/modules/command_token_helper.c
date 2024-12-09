@@ -123,7 +123,11 @@ void saveDataToTapeHandler( void )
     cgetc();
     printLoadingOnStatusBar();
 
-    saveDataToTape();
+    if ( seriliazeTableDataToTape() == EXIT_FAILURE )
+    {
+        showCommandHintInStatusBar( "Error", "Failed to write to tape           " );
+        cgetc();    
+    }
 
     gotoxy( 0, 2 );
     printf( "%*s", SCREEN_WIDTH, " " );

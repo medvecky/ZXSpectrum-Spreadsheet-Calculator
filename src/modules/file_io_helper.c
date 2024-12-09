@@ -140,16 +140,6 @@ int esxdosReadLine( unsigned char handle, char * buffer, int buffer_size )
     return bytes_read; 
 }
 
-void saveDataToTape( void )
-{
-    char name[ 11 ] = "MyString"; 
-    char data[ 100 ] = "Hello, World!"; 
-    size_t load_address = (size_t)data; 
-    size_t length = strlen( data ) + 1; 
-    
-    tape_save( name, load_address, (void *)data, length );
-}
-
 void loadDataFromTape( void )
 {
     char name[ 11 ]; 
@@ -162,4 +152,90 @@ void loadDataFromTape( void )
     gotoxy( 0, 2 );
     printf( "Data[%s]", data );
     cgetc();
+}
+
+int calculateBufferSize( void )
+{
+    uint16_t bufferSize = 0;
+    for ( size_t row = 0; row < NUMBER_OF_ROWS; row++ )
+    {
+        for ( size_t column = 0; column < NUMBER_OF_COLUMNS; column++ )
+        {
+            Cell * cell = sheet->cells[ row ][ column ];
+            if ( cell != NULL )
+            {
+                if ( cell->type == NUMBER_CELL )
+                {
+                    bufferSize += snprintf( NULL, 0, "%zu,%zu,N,%f\n", row, column, cell->data.number );
+                }
+                else if ( cell->type == TEXT_CELL )
+                {
+                    bufferSize += snprintf( NULL, 0, "%zu,%zu,T,%s\n", row, column, cell->data.text );
+                }
+            }
+        }
+    }
+    
+    return bufferSize + 1;
+}
+
+int seriliazeTableDataToTape( void )
+{
+    char name[ 11 ] = "SheetData";
+    uint16_t bufferSize = calculateBufferSize();
+    char * outStringBuffer = ( char * )malloc( bufferSize );
+    if ( outStringBuffer == NULL )
+    {
+        gotoxy( 0, 2 );
+        puts( "Failed to allocate memory" );
+        cgetc();
+        return EXIT_FAILURE;
+    }
+    size_t bufferOffset = 0;
+
+    for ( size_t row = 0; row < NUMBER_OF_ROWS; row++ )
+    {
+        for ( size_t column = 0; column < NUMBER_OF_COLUMNS; column++ )
+        {
+            Cell *cell = sheet->cells[ row ][ column ];
+            size_t stringSize = 0;
+
+            if ( cell != NULL )
+            {
+                if ( cell->type == NUMBER_CELL )
+                {
+                    stringSize = snprintf(
+                        outStringBuffer + bufferOffset,
+                        bufferSize - bufferOffset,
+                        "%zu,%zu,N,%f\n",
+                        row,
+                        column,
+                        cell->data.number );
+                }
+                else if ( cell->type == TEXT_CELL )
+                {
+                    stringSize = snprintf(
+                        outStringBuffer + bufferOffset,
+                        bufferSize - bufferOffset,
+                        "%zu,%zu,T,%s\n",
+                        row,
+                        column,
+                        cell->data.text );
+                }
+
+                bufferOffset += stringSize;
+                if ( bufferOffset >= bufferSize )
+                {
+                    free( outStringBuffer );
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+    }
+
+    tape_save( name, (size_t)outStringBuffer, (void *)outStringBuffer, bufferOffset );
+
+    free( outStringBuffer );
+
+    return EXIT_SUCCESS;
 }

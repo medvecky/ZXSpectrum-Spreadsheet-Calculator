@@ -8,7 +8,7 @@ int loadDataFromDisk( char * fileName );
 int serializeTableDataToDisk( unsigned char fout );
 int deSerializeTableDataToDisk( unsigned char fin );
 int esxdosReadLine( unsigned char handle, char * buffer, int buffer_size );
-void saveDataToTape( void );
 void loadDataFromTape( void );
+int seriliazeTableDataToTape( void );
 
 #endif // FILE_IO_HELPER_H
