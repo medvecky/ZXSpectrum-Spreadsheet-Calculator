@@ -10,5 +10,6 @@ void saveDataToDiskHandler( void );
 void loadDataFromDiskHandler( void );
 void saveDataToTapeHandler( void );
 void loadDataFromTapeHandler( void );
+void handleClearCommand( size_t fieldWidth, size_t rowHeadersWidth );
 
 #endif // COMMAND_TOKEN_HELPER_H

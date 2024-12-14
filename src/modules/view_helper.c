@@ -243,3 +243,21 @@ void printLoadingOnStatusBar( void )
     printf( "%s", "Loading...                         " );
     restoreAttributes();
 }
+
+void clearAllCellsInSheet( size_t fieldWidth, size_t rowHeadersWidth )
+{
+    for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
+    {
+        for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
+        {
+            gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
+            size_t x = colCounter - 1;
+            size_t y = rowCounter - 1;            
+            if ( !Sheet_isEmpty( sheet, y, x ) ) 
+            {
+                Sheet_clearCell( sheet, y, x );
+                printf( "%*s", fieldWidth, "" );
+            }
+        }
+    }
+} 

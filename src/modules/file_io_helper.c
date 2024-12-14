@@ -79,13 +79,13 @@ int loadDataFromDisk( char * fileName )
         return EXIT_FAILURE;
     }
 
-    deSerializeTableDataToDisk( fin );
+    deSerializeTableDataFromDisk( fin );
 
     esx_f_close( fin );
     return EXIT_SUCCESS;
 }
 
-int deSerializeTableDataToDisk( unsigned char fin )
+int deSerializeTableDataFromDisk( unsigned char fin )
 {
     char buffer[ MAX_BUFFER_SIZE ];
     while ( esxdosReadLine( fin, buffer, sizeof( buffer ) ) > 0 )
@@ -140,20 +140,6 @@ int esxdosReadLine( unsigned char handle, char * buffer, int buffer_size )
     return bytes_read; 
 }
 
-void loadDataFromTape( void )
-{
-    char name[ 11 ]; 
-    char data[ 100 ];
-    size_t load_address = (size_t)data;
-    size_t length = 100;
-
-    tape_load_block(load_address, length, 0xff);
-
-    gotoxy( 0, 2 );
-    printf( "Data[%s]", data );
-    cgetc();
-}
-
 int calculateBufferSize( void )
 {
     uint16_t bufferSize = 0;
@@ -183,6 +169,10 @@ int seriliazeTableDataToTape( void )
 {
     char name[ 11 ] = "SheetData";
     uint16_t bufferSize = calculateBufferSize();
+    char bufferSizeStr[ 6 ];
+    snprintf( bufferSizeStr, sizeof( bufferSizeStr ), "%u", bufferSize );
+    tape_save( "DataSize", bufferSize, ( void * )bufferSizeStr, 6 );
+
     char * outStringBuffer = ( char * )malloc( bufferSize );
     if ( outStringBuffer == NULL )
     {
@@ -236,6 +226,51 @@ int seriliazeTableDataToTape( void )
     tape_save( name, (size_t)outStringBuffer, (void *)outStringBuffer, bufferOffset );
 
     free( outStringBuffer );
+
+    return EXIT_SUCCESS;
+}
+
+int deSerializeTableDataFromTape( void )
+{
+    char bufferSizeStr[ 6 ];
+    tape_load_block( ( size_t ) bufferSizeStr, 6, 0xff );
+
+    uint16_t bufferSize = ( uint16_t )atoi( bufferSizeStr );
+
+    char * inStringBuffer = ( char * )malloc( bufferSize );
+    if ( inStringBuffer == NULL )
+    {
+        gotoxy( 0, 2 );
+        puts( "Failed to allocate memory" );
+        cgetc();
+        return EXIT_FAILURE;
+    }
+
+    tape_load_block( ( size_t )inStringBuffer, bufferSize, 0xff );
+
+    size_t row, col;
+    char type;
+    char data[ MAX_BUFFER_SIZE ];
+    char * line = strtok( inStringBuffer, "\n" );
+
+    while ( line != NULL )
+    {
+        if ( sscanf (line, "%u,%u,%c,%s", &row, &col, &type, &data ) == 4 )
+        {
+            if ( type == 'N' )
+            {
+                double number = atof( data );
+                Sheet_setCell( sheet, row, col, Cell_createNumber( number ) );
+            }
+            else if ( type == 'T' )
+            {
+                Sheet_setCell( sheet, row, col, Cell_createText( strdup( data ) ) );
+            }
+        }
+        line = strtok( NULL, "\n" );
+    }
+
+    free( inStringBuffer );
 
     return EXIT_SUCCESS;
 }

@@ -12,7 +12,7 @@ extern bool isRunning;
 
 void handleCommandToken( size_t fieldWidth, size_t rowHeadersWidth )
 {
-    showCommandHintInStatusBar( "Command", "S" );
+    showCommandHintInStatusBar( "Command", "S C" );
     getAndHandleCommand( fieldWidth, rowHeadersWidth );
     clearStatusBarCommandHint();
 }
@@ -36,6 +36,10 @@ void getAndHandleCommand( size_t fieldWidth, size_t rowHeadersWidth )
         case 's':
         case 'S':
             handleStorageCommand( fieldWidth, rowHeadersWidth );
+            break;
+        case 'c':
+        case 'C':
+            handleClearCommand( fieldWidth, rowHeadersWidth );
             break;
     }
 }
@@ -138,8 +142,25 @@ void loadDataFromTapeHandler( void )
     showCommandHintInStatusBar( "Storage", "Load From Tape" );
     printLoadingOnStatusBar();
 
-    loadDataFromTape();
+    if ( deSerializeTableDataFromTape() == EXIT_FAILURE )
+    {
+        showCommandHintInStatusBar( "Error", "Failed to load from tape          " );
+        cgetc();    
+    }
 
     gotoxy( 0, 2 );
     printf( "%*s", SCREEN_WIDTH, " " ); 
+}
+
+void handleClearCommand( size_t fieldWidth, size_t rowHeadersWidth )
+{
+    showCommandHintInStatusBar( "Clear", "Type Y to confirm" );
+    char command = cgetc();
+    if ( command == 'y' || command == 'Y' )
+    {
+        printLoadingOnStatusBar();
+        clearAllCellsInSheet( fieldWidth, rowHeadersWidth );
+    }
+   
+    clearStatusBarCommandHint();
 }
