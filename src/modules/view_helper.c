@@ -9,6 +9,7 @@
 
 extern size_t xCellCoordinate;
 extern size_t yCellCoordinate;
+extern bool isRunning;
 
 static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
@@ -89,8 +90,9 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
     displayInitialSheetDataToGrid( fieldWidth, rowHeadersWidth );
     showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
 
-    while ( ( key = cgetc() ) != 'q' ) 
+    while ( isRunning ) 
     {   
+        key = cgetc();
         hideCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
         handleKeyPress( key, &xCursorPosition, &yCursorPosition, fieldWidth, rowHeadersWidth );
         showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
@@ -202,7 +204,7 @@ void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t 
     }
 }
 
-static void  displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
+void  displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
 {
     for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
     {
@@ -241,3 +243,21 @@ void printLoadingOnStatusBar( void )
     printf( "%s", "Loading...                         " );
     restoreAttributes();
 }
+
+void clearAllCellsInSheet( size_t fieldWidth, size_t rowHeadersWidth )
+{
+    for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
+    {
+        for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
+        {
+            gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
+            size_t x = colCounter - 1;
+            size_t y = rowCounter - 1;            
+            if ( !Sheet_isEmpty( sheet, y, x ) ) 
+            {
+                Sheet_clearCell( sheet, y, x );
+                printf( "%*s", fieldWidth, "" );
+            }
+        }
+    }
+} 

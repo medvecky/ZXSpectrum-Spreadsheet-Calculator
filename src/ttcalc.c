@@ -9,6 +9,7 @@
 size_t xCellCoordinate = 0;
 size_t yCellCoordinate = 0;
 Sheet * sheet = NULL;
+bool isRunning = true;
 
 int main( void )
 {
