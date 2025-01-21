@@ -5,8 +5,8 @@
 #include <conio.h>
 
 #include "file_io_helper.h"
-#include "system_helper.h"
-#include "adt_sheet.h"
+#include "../view/system_helper.h"
+#include "../model/adt_sheet.h"
 
 extern Sheet * sheet;
 

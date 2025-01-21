@@ -3,8 +3,8 @@
 #include <ctype.h>
 
 #include "input_helper.h"
-#include "adt_cell.h"
-#include "adt_sheet.h"
+#include "../model/adt_cell.h"
+#include "../model/adt_sheet.h"
 
 int handleInput( void )
 {

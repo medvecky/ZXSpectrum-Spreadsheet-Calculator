@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "adt_cell.h"
+#include "../model/adt_cell.h"
 
 #define MAX_INPUT_LENGTH 80
 

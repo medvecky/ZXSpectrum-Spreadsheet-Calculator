@@ -25,6 +25,6 @@ void inverseAttributes( void )
 
 void restoreAttributes( void )
 {
-    textcolor(YELLOW );
+    textcolor( YELLOW );
     textbackground( BLACK );
 }

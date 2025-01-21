@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "adt_sheet.h"
+#include "../model/adt_sheet.h"
 
 typedef bool ( * DirectionCheck )( size_t, size_t );
 

@@ -3,13 +3,15 @@
 
 #include "view_helper.h"
 #include "system_helper.h"
-#include "adt_sheet.h"
-#include "input_helper.h"
-#include "command_helper.h"
+#include "../model/adt_sheet.h"
+#include "../controller/input_helper.h"
+#include "../controller/command_helper.h"
 
 extern size_t xCellCoordinate;
 extern size_t yCellCoordinate;
-extern bool isRunning;
+bool isRunning = true;
+
+Sheet * sheet = NULL;
 
 static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
@@ -19,6 +21,7 @@ static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size
     gotoxy( xCursorPosition, yCursorPosition );
     inverseAttributes();
 
+    // TODO: Remove direct access to sheet.
     if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
     {
         printf( "%*s", fieldWidth, "" );
@@ -34,7 +37,7 @@ static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size
 static void hideCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
     gotoxy( xCursorPosition, yCursorPosition );
-    
+    // TODO: Remove direct access to sheet.
     if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
     {
         printf( "%*s", fieldWidth, "" );
@@ -82,6 +85,10 @@ void showRowsHeaders( size_t fieldWidth, size_t start )
 
 void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {
+    puts( "Loading..." );
+    // TODO: Remove direct access to sheet.
+    sheet = Sheet_create();
+    setUpScreen();
     char key = 0;
     showStatusBar();
     showColumnsHeaders( fieldWidth, rowHeadersWidth, 0 );
@@ -138,6 +145,7 @@ static void printValueToStatusBar( void )
     } 
     else 
     {
+        // TODO: Remove direct access to sheet.
         Cell * cell = Sheet_getCell( sheet, yCellCoordinate, xCellCoordinate );
         if ( cell->type == NUMBER_CELL ) 
         {
@@ -190,6 +198,7 @@ void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t 
             
             if ( directionCheck( x, y ) )
             {
+                // TODO: Remove direct access to sheet.
                 if ( !Sheet_isEmpty( sheet, y, x ) )    
                 {
                     Cell * cell = Sheet_getCell( sheet, y, x );
@@ -225,6 +234,7 @@ void  displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
 
 static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth )
 {
+    // TODO: Remove direct access to sheet.
     if ( !Sheet_isEmpty( sheet, y, x ) ) 
     {
         Cell * cell = Sheet_getCell( sheet, y, x );
@@ -244,6 +254,7 @@ void printLoadingOnStatusBar( void )
     restoreAttributes();
 }
 
+// TODO: Move this function to the controller.
 void clearAllCellsInSheet( size_t fieldWidth, size_t rowHeadersWidth )
 {
     for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )

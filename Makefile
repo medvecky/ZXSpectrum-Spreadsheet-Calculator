@@ -3,14 +3,14 @@ EXEC_OUTPUT=build/ttcalc
 
 # List all your source files here
 SOURCES = ttcalc.c\
-			modules/system_helper.c\
-			modules/input_helper.c\
-			modules/view_helper.c\
-			modules/adt_cell.c\
-			modules/adt_sheet.c\
-			modules/command_helper.c\
-			modules/command_token_helper.c\
-			modules/file_io_helper.c
+			modules/model/adt_cell.c\
+			modules/model/adt_sheet.c\
+			modules/controller/input_helper.c\
+			modules/controller/command_helper.c\
+			modules/controller/command_token_helper.c\
+			modules/controller/file_io_helper.c\
+			modules/view/system_helper.c\
+			modules/view/view_helper.c
 		
 # Maybe you'll need to edit this
 
@@ -75,7 +75,10 @@ install: all
 clean:
 	rm -rf $(OUT_DIR) /tmp/tmpXX*
 	rm -f src/*.lis src/*.sym src/*.o \
-		src/modules/*.lis src/modules/*.sym src/modules/*.o
+		src/modules/*.lis src/modules/*.sym src/modules/*.o\
+		src/modules/model/*.lis src/modules/model/*.sym src/modules/model/*.o\
+		src/modules/view/*.lis src/modules/view/*.sym src/modules/view/*.o\
+		src/modules/controller/*.lis src/modules/controller/*.sym src/modules/controller/*.o
 
 dirs: $(OUT_DIR)
 

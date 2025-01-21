@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "adt_cell.h"
-#include "system_helper.h"
+#include "../view/system_helper.h"
 
 typedef struct 
 {

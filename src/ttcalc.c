@@ -1,15 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <conio.h>
-
-#include "modules/system_helper.h"
-#include "modules/view_helper.h"
-#include "modules/adt_sheet.h"
+#include "modules/view/system_helper.h"
+#include "modules/view/view_helper.h"
 
 size_t xCellCoordinate = 0;
 size_t yCellCoordinate = 0;
-Sheet * sheet = NULL;
-bool isRunning = true;
 
 int main( void )
 {
@@ -19,11 +12,9 @@ int main( void )
     size_t yCursorPosition = 4;
 
     setUpScreen();
-    puts( "Loading..." );
+    // puts( "Loading..." );
 
-    sheet = Sheet_create();
-
-    setUpScreen();
+    // setUpScreen();
     showGrid( xCursorPosition, yCursorPosition, fieldWidth, rowHeadersWidth );
 
     restoreScreen();
