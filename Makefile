@@ -9,6 +9,7 @@ SOURCES = ttcalc.c\
 			modules/controller/command_helper.c\
 			modules/controller/command_token_helper.c\
 			modules/controller/file_io_helper.c\
+			modules/controller/sheet_ops_helper.c\
 			modules/view/system_helper.c\
 			modules/view/view_helper.c
 		

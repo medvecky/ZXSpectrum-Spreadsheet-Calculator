@@ -3,9 +3,9 @@
 
 #include "view_helper.h"
 #include "system_helper.h"
-#include "../model/adt_sheet.h"
 #include "../controller/input_helper.h"
 #include "../controller/command_helper.h"
+#include "../controller/sheet_ops_helper.h"
 
 extern size_t xCellCoordinate;
 extern size_t yCellCoordinate;
@@ -21,24 +21,23 @@ static void showCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size
     gotoxy( xCursorPosition, yCursorPosition );
     inverseAttributes();
 
-    // TODO: Remove direct access to sheet.
-    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+    if ( isCellEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
     {
         printf( "%*s", fieldWidth, "" );
     } 
     else 
     {
         printCellAtXYValue( xCellCoordinate, yCellCoordinate, fieldWidth );
-    }
+    } 
     
     restoreAttributes();
-}
+} // end function showCursorAtXY
 
 static void hideCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth )
 {
     gotoxy( xCursorPosition, yCursorPosition );
-    // TODO: Remove direct access to sheet.
-    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+
+    if ( isCellEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
     {
         printf( "%*s", fieldWidth, "" );
     } 
@@ -46,7 +45,7 @@ static void hideCursorAtXY( size_t xCursorPosition, size_t yCursorPosition, size
     {
         printCellAtXYValue( xCellCoordinate, yCellCoordinate, fieldWidth );
     }
-}
+} // end function hideCursorAtXY
 
 void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth, size_t start )
 {
@@ -68,9 +67,9 @@ void showColumnsHeaders( size_t fieldWidth, size_t rowHeadersWidth, size_t start
         {
             printf( "%c%*s", secondColumnSymbol, fieldWidth - 1, "" );
         }
-    }
+    } // end for loop to print column headers
     restoreAttributes();
-}
+} // end function showColumnsHeaders
 
 void showRowsHeaders( size_t fieldWidth, size_t start ) 
 {
@@ -79,15 +78,14 @@ void showRowsHeaders( size_t fieldWidth, size_t start )
     {
         gotoxy( 0, counter + 3 );
         printf( "%-*d", fieldWidth, counter + start - 1 );
-    }
+    } // end for loop to print row headers
     restoreAttributes();
-}
+} // end function showRowsHeaders
 
 void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth, size_t rowHeadersWidth )
 {
     puts( "Loading..." );
-    // TODO: Remove direct access to sheet.
-    sheet = Sheet_create();
+    sheet = createSheet();
     setUpScreen();
     char key = 0;
     showStatusBar();
@@ -103,8 +101,8 @@ void showGrid( size_t xCursorPosition, size_t yCursorPosition, size_t fieldWidth
         hideCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
         handleKeyPress( key, &xCursorPosition, &yCursorPosition, fieldWidth, rowHeadersWidth );
         showCursorAtXY( xCursorPosition, yCursorPosition, fieldWidth );
-    }
-}
+    } // end while loop to handle key presses
+} // end function showGrid
 
 static void showStatusBar( void )
 {
@@ -113,7 +111,7 @@ static void showStatusBar( void )
     gotoxy( 0, 1 );
     printf( "%*s", SCREEN_WIDTH, " " );
     restoreAttributes();
-}
+} // end function showStatusBar
 
 static void printCursorPosition( void )
 {
@@ -133,20 +131,19 @@ static void printCursorPosition( void )
     }
     
     restoreAttributes();
-}
+} // end function printCursorPosition
 
 static void printValueToStatusBar( void )
 {
     inverseAttributes();
 
-    if ( Sheet_isEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
+    if ( isCellEmpty( sheet, yCellCoordinate, xCellCoordinate ) ) 
     {
         printf( "                    " );
     } 
     else 
     {
-        // TODO: Remove direct access to sheet.
-        Cell * cell = Sheet_getCell( sheet, yCellCoordinate, xCellCoordinate );
+        Cell * cell = getCell( sheet, yCellCoordinate, xCellCoordinate );
         if ( cell->type == NUMBER_CELL ) 
         {
             printf( "%s", "(V)" );
@@ -162,7 +159,7 @@ static void printValueToStatusBar( void )
     }
 
     restoreAttributes();
-}   
+}   // end function printValueToStatusBar
 
 static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 ) 
 {
@@ -183,7 +180,7 @@ static void numberToTwoLetterCode( int number, char * symbol1, char * symbol2 )
             ( *symbol1 )--;
         }
     }
-}
+} // end function numberToTwoLetterCode
 
 void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t startRow, size_t startColumn, DirectionCheck directionCheck )
 {
@@ -198,10 +195,9 @@ void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t 
             
             if ( directionCheck( x, y ) )
             {
-                // TODO: Remove direct access to sheet.
-                if ( !Sheet_isEmpty( sheet, y, x ) )    
+                if ( !isCellEmpty( sheet, y, x ) )    
                 {
-                    Cell * cell = Sheet_getCell( sheet, y, x );
+                    Cell * cell = getCell( sheet, y, x );
                     cell->print( cell , fieldWidth );
                 }
                 else 
@@ -209,9 +205,9 @@ void  displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t 
                     printf( "%*s", fieldWidth, "" );
                 }
             }
-        }
-    }
-}
+        } // end for loop to display sheet data to grid
+    } // end for loop to display sheet data to grid
+} // end function displaySheetDataToGrid
 
 void  displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
 {
@@ -223,28 +219,27 @@ void  displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth )
             // printCellAtXYValue( colCounter - 1 + startColumn, rowCounter - 1 + startRow, fieldWidth );
             size_t x = colCounter - 1;
             size_t y = rowCounter - 1;            
-            if ( !Sheet_isEmpty( sheet, y, x ) ) 
+            if ( !isCellEmpty( sheet, y, x ) ) 
             {
-                Cell * cell = Sheet_getCell( sheet, y, x );
+                Cell * cell = getCell( sheet, y, x );
                 cell->print( cell , fieldWidth );
             }
-        }
-    }
-} 
+        } // end for loop to display initial sheet data to grid
+    } // end for loop to display initial sheet data to grid
+} // end function displayInitialSheetDataToGrid
 
 static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth )
 {
-    // TODO: Remove direct access to sheet.
-    if ( !Sheet_isEmpty( sheet, y, x ) ) 
+    if ( !isCellEmpty( sheet, y, x ) ) 
     {
-        Cell * cell = Sheet_getCell( sheet, y, x );
+        Cell * cell = getCell( sheet, y, x );
         cell->print( cell , fieldWidth );
     }
     else 
     {
         printf( "%*s", fieldWidth, "" );
     }
-}
+} // end function printCellAtXYValue
 
 void printLoadingOnStatusBar( void )
 {
@@ -252,23 +247,4 @@ void printLoadingOnStatusBar( void )
     gotoxy( 0, 0 );
     printf( "%s", "Loading...                         " );
     restoreAttributes();
-}
-
-// TODO: Move this function to the controller.
-void clearAllCellsInSheet( size_t fieldWidth, size_t rowHeadersWidth )
-{
-    for ( size_t rowCounter = 1; rowCounter < SCREEN_HEIGHT - 2; rowCounter++ )
-    {
-        for ( size_t colCounter = 1; colCounter * fieldWidth < SCREEN_WIDTH - rowHeadersWidth; colCounter++ )
-        {
-            gotoxy( rowHeadersWidth + ( colCounter - 1 ) * fieldWidth, rowCounter + 3 );
-            size_t x = colCounter - 1;
-            size_t y = rowCounter - 1;            
-            if ( !Sheet_isEmpty( sheet, y, x ) ) 
-            {
-                Sheet_clearCell( sheet, y, x );
-                printf( "%*s", fieldWidth, "" );
-            }
-        }
-    }
-} 
+} // end function printLoadingOnStatusBar

@@ -3,10 +3,11 @@
 #include <conio.h>
 
 #include "command_token_helper.h"
-#include "../view/system_helper.h"
 #include "file_io_helper.h"
 #include "input_helper.h"
+#include "sheet_ops_helper.h"
 #include "../view/view_helper.h"
+#include "../view/system_helper.h"
 
 extern bool isRunning;
 
