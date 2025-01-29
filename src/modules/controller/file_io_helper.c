@@ -5,8 +5,8 @@
 #include <conio.h>
 
 #include "file_io_helper.h"
-#include "system_helper.h"
-#include "adt_sheet.h"
+#include "../view/system_helper.h"
+#include "../model/adt_sheet.h"
 
 extern Sheet * sheet;
 
@@ -18,13 +18,13 @@ int saveDataToDisk( char * fileName )
     if ( fout == 0 )
     {
         return EXIT_FAILURE;
-    }
+    } // end if fout == 0
 
     serializeTableDataToDisk( fout );
 
     esx_f_close( fout );
     return EXIT_SUCCESS;
-}
+} // end function saveDataToDisk
 
 int serializeTableDataToDisk( unsigned char fout )
 {
@@ -48,7 +48,7 @@ int serializeTableDataToDisk( unsigned char fout )
                         row,
                         column, 
                         cell->data.number );
-                } 
+                }  // end if cell->type == NUMBER_CELL
                 else if ( cell->type == TEXT_CELL ) 
                 {
                     stringSize = snprintf( 
@@ -58,18 +58,18 @@ int serializeTableDataToDisk( unsigned char fout )
                         row, 
                         column,
                         cell->data.text );
-                }
+                } // end if cell->type == TEXT_CELL
 
                 bytesWRitten = esx_f_write( fout, outStringBuffer, stringSize );
                 if ( bytesWRitten != stringSize ) 
                 {
                      esx_f_close( fout );
                      return EXIT_FAILURE;
-                }
-            }
-        }
-    }
-}
+                } // end if bytesWRitten != stringSize
+            } // end if cell != NULL
+        } // end for column
+    } // end for row    
+} // end function serializeTableDataToDisk
 
 int loadDataFromDisk( char * fileName )
 {
@@ -77,13 +77,13 @@ int loadDataFromDisk( char * fileName )
     if ( ( fin = esx_f_open( fileName, ESX_MODE_OPEN_EXIST | ESX_MODE_R ) ) == 0xff )
     {
         return EXIT_FAILURE;
-    }
+    } // end if fin == 0xff
 
     deSerializeTableDataFromDisk( fin );
 
     esx_f_close( fin );
     return EXIT_SUCCESS;
-}
+} // end function loadDataFromDisk
 
 int deSerializeTableDataFromDisk( unsigned char fin )
 {
@@ -100,16 +100,16 @@ int deSerializeTableDataFromDisk( unsigned char fin )
             {
                 double number = atof( data );
                 Sheet_setCell( sheet, row, col, Cell_createNumber( number ) );
-            } 
+            } // end if type == 'N'
             else if ( type == 'T' ) 
             {
                 Sheet_setCell( sheet, row, col, Cell_createText( strdup( data ) ) );
-            }
-        }
-    }
+            } // end if type == 'T'
+        } // end if sscanf
+    } // end while esxdosReadLine( fin, buffer, sizeof( buffer ) ) > 0
 
     return EXIT_SUCCESS;
-}
+} // end function deSerializeTableDataFromDisk
 
 int esxdosReadLine( unsigned char handle, char * buffer, int buffer_size ) 
 {
@@ -123,22 +123,22 @@ int esxdosReadLine( unsigned char handle, char * buffer, int buffer_size )
             if ( bytes_read == 0 ) 
             {
                 return 0; 
-            }
+            } // end if bytes_read == 0
             break;
-        }
+        } // end if esxdos_f_read( handle, &byte, 1 ) == 0
 
         if ( byte == '\n' ) 
         {
             break; 
-        }
+        } // end if byte == '\n'
 
         buffer[ bytes_read++ ] = byte;
-    }
+    } // end while bytes_read < buffer_size - 1
 
     buffer[ bytes_read ] = '\0'; 
     
     return bytes_read; 
-}
+} // end function esxdosReadLine
 
 int calculateBufferSize( void )
 {
@@ -157,13 +157,13 @@ int calculateBufferSize( void )
                 else if ( cell->type == TEXT_CELL )
                 {
                     bufferSize += snprintf( NULL, 0, "%zu,%zu,T,%s\n", row, column, cell->data.text );
-                }
-            }
-        }
-    }
+                } // end if cell->type == TEXT_CELL
+            } // end if cell != NULL
+        } // end for column
+    } // end for row
     
     return bufferSize + 1;
-}
+} // end function calculateBufferSize
 
 int seriliazeTableDataToTape( void )
 {
@@ -180,7 +180,7 @@ int seriliazeTableDataToTape( void )
         puts( "Failed to allocate memory" );
         cgetc();
         return EXIT_FAILURE;
-    }
+    } // end if outStringBuffer == NULL
     size_t bufferOffset = 0;
 
     for ( size_t row = 0; row < NUMBER_OF_ROWS; row++ )
@@ -201,7 +201,7 @@ int seriliazeTableDataToTape( void )
                         row,
                         column,
                         cell->data.number );
-                }
+                } // end if cell->type == NUMBER_CELL
                 else if ( cell->type == TEXT_CELL )
                 {
                     stringSize = snprintf(
@@ -211,24 +211,24 @@ int seriliazeTableDataToTape( void )
                         row,
                         column,
                         cell->data.text );
-                }
+                } // end if cell->type == TEXT_CELL
 
                 bufferOffset += stringSize;
                 if ( bufferOffset >= bufferSize )
                 {
                     free( outStringBuffer );
                     return EXIT_FAILURE;
-                }
-            }
-        }
-    }
+                } // end if bufferOffset >= bufferSize
+            } // end if cell != NULL
+        }  // end for column
+    } // end for row
 
     tape_save( name, (size_t)outStringBuffer, (void *)outStringBuffer, bufferOffset );
 
     free( outStringBuffer );
 
     return EXIT_SUCCESS;
-}
+} // end function seriliazeTableDataToTape
 
 int deSerializeTableDataFromTape( void )
 {
@@ -261,16 +261,16 @@ int deSerializeTableDataFromTape( void )
             {
                 double number = atof( data );
                 Sheet_setCell( sheet, row, col, Cell_createNumber( number ) );
-            }
+            } // end if type == 'N'
             else if ( type == 'T' )
             {
                 Sheet_setCell( sheet, row, col, Cell_createText( strdup( data ) ) );
-            }
-        }
+            } // end if type == 'T'
+        } // end if sscanf
         line = strtok( NULL, "\n" );
-    }
+    } // end while line != NULL
 
     free( inStringBuffer );
 
     return EXIT_SUCCESS;
-}
+} // end function deSerializeTableDataFromTape

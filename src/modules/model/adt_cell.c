@@ -11,7 +11,7 @@ Cell * Cell_createBlank()
     cell->type = BLANK_CELL;
     cell->print = Cell_printBlank;
     return cell;
-}
+} // end function Cell_createBlank
 
 Cell * Cell_createNumber( double number ) 
 {
@@ -20,7 +20,7 @@ Cell * Cell_createNumber( double number )
     cell->data.number = number;
     cell->print = Cell_printNumber;
     return cell;
-}
+} // end function Cell_createNumber
 
 Cell * Cell_createText( char * text ) 
 {
@@ -29,12 +29,12 @@ Cell * Cell_createText( char * text )
     cell->data.text = text;
     cell->print = Cell_printText;
     return cell;
-}
+} // end function Cell_createText
 
 void Cell_printBlank( Cell * cell, size_t fieldWidth ) 
 {
     
-}
+} // end function Cell_printBlank
 
 void Cell_printNumber( Cell * cell, size_t fieldWidth ) 
 {
@@ -50,7 +50,7 @@ void Cell_printNumber( Cell * cell, size_t fieldWidth )
     {
         printf( "%-*f", fieldWidth, cell->data.number );
     }
-}
+} // end function Cell_printNumber
 
 void Cell_printText( Cell * cell, size_t fieldWidth ) 
 {
@@ -74,4 +74,4 @@ void Cell_printText( Cell * cell, size_t fieldWidth )
     {
         printf( "%s", cell->data.text );
     }
-}   
+}  // end function Cell_printText  

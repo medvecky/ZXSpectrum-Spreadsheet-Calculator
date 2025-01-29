@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "adt_sheet.h"
+#include "../model/adt_sheet.h"
 
 typedef bool ( * DirectionCheck )( size_t, size_t );
 
@@ -20,6 +20,7 @@ void displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t s
 void displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth );
 static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth );
 void printLoadingOnStatusBar( void );
-void clearAllCellsInSheet( size_t fieldWidth, size_t rowHeadersWidth );
+void showCommandHintInStatusBar( char * categoryHint, char * commandHint );
+void clearStatusBarCommandHint( void );
 
 #endif
