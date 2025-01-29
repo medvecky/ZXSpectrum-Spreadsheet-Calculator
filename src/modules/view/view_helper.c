@@ -3,6 +3,7 @@
 
 #include "view_helper.h"
 #include "system_helper.h"
+
 #include "../controller/input_helper.h"
 #include "../controller/command_helper.h"
 #include "../controller/sheet_ops_helper.h"
@@ -248,3 +249,21 @@ void printLoadingOnStatusBar( void )
     printf( "%s", "Loading...                         " );
     restoreAttributes();
 } // end function printLoadingOnStatusBar
+
+void showCommandHintInStatusBar( char * categoryHint, char * commandHint )
+{
+    inverseAttributes();
+    
+    gotoxy( 0, 1 );
+    printf( "%s: %s", categoryHint, commandHint );
+
+    restoreAttributes();
+} // end function showCommandHintInStatusBar
+
+void clearStatusBarCommandHint( void )
+{
+    inverseAttributes();
+    gotoxy( 0, 1 );
+    printf( "%*s", SCREEN_WIDTH, " " );
+    restoreAttributes();
+} // end function clearStatusBarCommandHint

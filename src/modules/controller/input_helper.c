@@ -3,6 +3,7 @@
 #include <ctype.h>
 
 #include "input_helper.h"
+
 #include "../model/adt_cell.h"
 #include "../model/adt_sheet.h"
 
@@ -15,7 +16,7 @@ int handleInput( void )
     printf( "%*s", SCREEN_WIDTH, " " );
     
     return EXIT_SUCCESS;
-}
+} // end function handleInput 
 
 Cell * createCell( void )
 {
@@ -33,7 +34,7 @@ Cell * createCell( void )
     }
 
     return cell;
-}
+} // end function createCell
 
 char * getInputString( void )
 {
@@ -45,7 +46,7 @@ char * getInputString( void )
         cgetc();
         
         return NULL;
-    }
+    } // end if inputString == NULL
     
     if ( fgets( inputString, MAX_INPUT_LENGTH, stdin ) == NULL ) 
     {
@@ -54,17 +55,17 @@ char * getInputString( void )
         cgetc();
     
         return NULL;
-    }
+    } // end if fgets inputString MAX_INPUT_LENGTH stdin == NULL
 
     size_t len = strlen( inputString );
     
     if ( len > 0 && inputString[ len - 1 ] == '\n' ) 
     {
         inputString[ len - 1 ] = '\0';   
-    }
+    } // end if len > 0 && inputString[ len - 1 ] == '\n'
 
     return inputString;
-}
+} // end function getInputString
 
 bool isNumber( const char * str ) 
 {
@@ -76,8 +77,8 @@ bool isNumber( const char * str )
                 str[ i ] != 'e' && str[ i ] != '.' ) 
         {
             return false;
-        }
-    }
+        } // end if !isdigit str i && str i != - && str i != e && str i != .
+    } // end for i < strlen str
     
     return true;
-}
+} // end function isNumber

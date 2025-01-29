@@ -20,5 +20,7 @@ void displaySheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth, size_t s
 void displayInitialSheetDataToGrid( size_t fieldWidth, size_t rowHeadersWidth );
 static void printCellAtXYValue( size_t x, size_t y, size_t fieldWidth );
 void printLoadingOnStatusBar( void );
+void showCommandHintInStatusBar( char * categoryHint, char * commandHint );
+void clearStatusBarCommandHint( void );
 
 #endif

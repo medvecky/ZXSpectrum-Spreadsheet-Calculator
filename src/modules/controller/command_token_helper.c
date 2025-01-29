@@ -6,6 +6,7 @@
 #include "file_io_helper.h"
 #include "input_helper.h"
 #include "sheet_ops_helper.h"
+
 #include "../view/view_helper.h"
 #include "../view/system_helper.h"
 
@@ -16,17 +17,7 @@ void handleCommandToken( size_t fieldWidth, size_t rowHeadersWidth )
     showCommandHintInStatusBar( "Command", "S C" );
     getAndHandleCommand( fieldWidth, rowHeadersWidth );
     clearStatusBarCommandHint();
-}
-
-void showCommandHintInStatusBar( char * categoryHint, char * commandHint )
-{
-    inverseAttributes();
-    
-    gotoxy( 0, 1 );
-    printf( "%s: %s", categoryHint, commandHint );
-
-    restoreAttributes();
-}
+} // end function handleCommandToken
 
 void getAndHandleCommand( size_t fieldWidth, size_t rowHeadersWidth )
 {
@@ -42,8 +33,8 @@ void getAndHandleCommand( size_t fieldWidth, size_t rowHeadersWidth )
         case 'C':
             handleClearCommand( fieldWidth, rowHeadersWidth );
             break;
-    }
-}
+    } // end switch command
+} // end function getAndHandleCommand
 
 void handleStorageCommand( size_t fieldWidth, size_t rowHeadersWidth )
 {
@@ -75,16 +66,8 @@ void handleStorageCommand( size_t fieldWidth, size_t rowHeadersWidth )
             loadDataFromTapeHandler();
             displayInitialSheetDataToGrid( fieldWidth, rowHeadersWidth );
             break;  
-    }
-}
-
-void clearStatusBarCommandHint( void )
-{
-    inverseAttributes();
-    gotoxy( 0, 1 );
-    printf( "%*s", SCREEN_WIDTH, " " );
-    restoreAttributes();
-}
+    } // end switch command
+} // end function handleStorageCommand
 
 void saveDataToDiskHandler( void )
 {
@@ -97,12 +80,12 @@ void saveDataToDiskHandler( void )
     {
         showCommandHintInStatusBar( "Error", "Failed to write data to disk" );
         cgetc();    
-    }
+    } // end if saveDataToDisk == EXIT_FAILURE
 
     gotoxy( 0, 2 );
     printf( "%*s", SCREEN_WIDTH, " " );
     free( fileName );
-}
+} // end function saveDataToDiskHandler
 
 void loadDataFromDiskHandler( void )
 {
@@ -115,12 +98,12 @@ void loadDataFromDiskHandler( void )
     {
         showCommandHintInStatusBar( "Error", "Failed to load data from disk" );
         cgetc();    
-    }
+    } // end if loadDataFromDisk == EXIT_FAILURE
 
     gotoxy( 0, 2 );
     printf( "%*s", SCREEN_WIDTH, " " );
     free( fileName );
-}
+} // end function loadDataFromDiskHandler
 
 void saveDataToTapeHandler( void )
 {
@@ -132,11 +115,11 @@ void saveDataToTapeHandler( void )
     {
         showCommandHintInStatusBar( "Error", "Failed to write to tape           " );
         cgetc();    
-    }
+    } // end if seriliazeTableDataToTape == EXIT_FAILURE
 
     gotoxy( 0, 2 );
     printf( "%*s", SCREEN_WIDTH, " " );
-}
+} // end function saveDataToTapeHandler
 
 void loadDataFromTapeHandler( void )
 {
@@ -147,11 +130,11 @@ void loadDataFromTapeHandler( void )
     {
         showCommandHintInStatusBar( "Error", "Failed to load from tape          " );
         cgetc();    
-    }
+    } // end if deSerializeTableDataFromTape == EXIT_FAILURE
 
     gotoxy( 0, 2 );
     printf( "%*s", SCREEN_WIDTH, " " ); 
-}
+} // end function loadDataFromTapeHandler
 
 void handleClearCommand( size_t fieldWidth, size_t rowHeadersWidth )
 {
@@ -161,7 +144,7 @@ void handleClearCommand( size_t fieldWidth, size_t rowHeadersWidth )
     {
         printLoadingOnStatusBar();
         clearAllCellsInSheet( fieldWidth, rowHeadersWidth );
-    }
+    } // end if command == 'y' || command == 'Y'
    
     clearStatusBarCommandHint();
-}
+} // end function handleClearCommand
